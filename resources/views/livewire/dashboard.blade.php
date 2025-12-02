@@ -2,10 +2,60 @@
     <div class="flex items-center justify-between">
         <div>
             <flux:heading size="xl">Upcoming Events</flux:heading>
-            <flux:subheading>Events in the next 90 days</flux:subheading>
+            <flux:subheading>
+                Events in the next
+                @if ($timeframeDays < 60)
+                    {{ $timeframeDays }} days
+                @elseif ($timeframeDays < 180)
+                    {{ $timeframeDays }} days
+                @elseif ($timeframeDays < 365)
+                    6 months
+                @else
+                    year
+                @endif
+            </flux:subheading>
         </div>
         <flux:button variant="primary" href="{{ route('people.index') }}" icon="users">
             Manage People
+        </flux:button>
+    </div>
+
+    {{-- Timeframe Selector --}}
+    <div class="flex gap-2 flex-wrap">
+        <flux:button
+            size="sm"
+            variant="{{ $timeframeDays === 30 ? 'primary' : 'ghost' }}"
+            wire:click="setTimeframe(30)"
+        >
+            30 Days
+        </flux:button>
+        <flux:button
+            size="sm"
+            variant="{{ $timeframeDays === 60 ? 'primary' : 'ghost' }}"
+            wire:click="setTimeframe(60)"
+        >
+            60 Days
+        </flux:button>
+        <flux:button
+            size="sm"
+            variant="{{ $timeframeDays === 90 ? 'primary' : 'ghost' }}"
+            wire:click="setTimeframe(90)"
+        >
+            90 Days
+        </flux:button>
+        <flux:button
+            size="sm"
+            variant="{{ $timeframeDays === 180 ? 'primary' : 'ghost' }}"
+            wire:click="setTimeframe(180)"
+        >
+            6 Months
+        </flux:button>
+        <flux:button
+            size="sm"
+            variant="{{ $timeframeDays === 365 ? 'primary' : 'ghost' }}"
+            wire:click="setTimeframe(365)"
+        >
+            1 Year
         </flux:button>
     </div>
 
@@ -17,7 +67,7 @@
 
     @if ($this->upcomingEvents->isEmpty())
         <flux:callout variant="info">
-            <strong>No upcoming events</strong> - You don't have any events in the next 30 days.
+            <strong>No upcoming events</strong> - You don't have any events in the selected timeframe.
             <a href="{{ route('people.index') }}" class="underline">Add people and events</a> to get started.
         </flux:callout>
     @else

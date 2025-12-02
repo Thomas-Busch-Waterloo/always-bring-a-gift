@@ -217,3 +217,77 @@ test('shows only upcoming uncompleted events', function () {
         ->toHaveCount(1)
         ->first()->id->toBe($upcomingEvent->id);
 });
+
+test('defaults to 30 day timeframe', function () {
+    Livewire::test(Dashboard::class)
+        ->assertSet('timeframeDays', 30);
+});
+
+test('can change timeframe to 60 days', function () {
+    Livewire::test(Dashboard::class)
+        ->call('setTimeframe', 60)
+        ->assertSet('timeframeDays', 60);
+});
+
+test('can change timeframe to 90 days', function () {
+    Livewire::test(Dashboard::class)
+        ->call('setTimeframe', 90)
+        ->assertSet('timeframeDays', 90);
+});
+
+test('can change timeframe to 6 months', function () {
+    Livewire::test(Dashboard::class)
+        ->call('setTimeframe', 180)
+        ->assertSet('timeframeDays', 180);
+});
+
+test('can change timeframe to 1 year', function () {
+    Livewire::test(Dashboard::class)
+        ->call('setTimeframe', 365)
+        ->assertSet('timeframeDays', 365);
+});
+
+test('filters events based on selected timeframe', function () {
+    $person = Person::factory()->create();
+    $eventType = EventType::factory()->create(['name' => 'Birthday']);
+
+    // Create event in 20 days (within 30 days)
+    $event20Days = Event::factory()->create([
+        'person_id' => $person->id,
+        'event_type_id' => $eventType->id,
+        'date' => now()->addDays(20),
+        'recurrence' => 'yearly',
+    ]);
+
+    // Create event in 50 days (outside 30 days, within 60 days)
+    $event50Days = Event::factory()->create([
+        'person_id' => $person->id,
+        'event_type_id' => $eventType->id,
+        'date' => now()->addDays(50),
+        'recurrence' => 'yearly',
+    ]);
+
+    // Create event in 100 days (outside 60 days, within 90 days)
+    $event100Days = Event::factory()->create([
+        'person_id' => $person->id,
+        'event_type_id' => $eventType->id,
+        'date' => now()->addDays(100),
+        'recurrence' => 'yearly',
+    ]);
+
+    // Test 30 day timeframe
+    $component = Livewire::test(Dashboard::class);
+    $upcomingEvents = $component->get('upcomingEvents');
+    expect($upcomingEvents)->toHaveCount(1)
+        ->first()->id->toBe($event20Days->id);
+
+    // Test 60 day timeframe
+    $component->call('setTimeframe', 60);
+    $upcomingEvents = $component->get('upcomingEvents');
+    expect($upcomingEvents)->toHaveCount(2);
+
+    // Test 90+ day timeframe
+    $component->call('setTimeframe', 180);
+    $upcomingEvents = $component->get('upcomingEvents');
+    expect($upcomingEvents)->toHaveCount(3);
+});

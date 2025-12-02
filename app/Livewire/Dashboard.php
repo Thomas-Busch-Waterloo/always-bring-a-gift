@@ -17,13 +17,23 @@ class Dashboard extends Component
 
     public string $giftValue = '';
 
+    public int $timeframeDays = 30;
+
     /**
-     * Get upcoming events in the next 30 days
+     * Set the timeframe for upcoming events
+     */
+    public function setTimeframe(int $days): void
+    {
+        $this->timeframeDays = $days;
+    }
+
+    /**
+     * Get upcoming events based on selected timeframe
      */
     public function getUpcomingEventsProperty(): Collection
     {
         $today = now()->startOfDay();
-        $endDate = now()->addDays(90);
+        $endDate = now()->addDays($this->timeframeDays);
 
         return Event::with(['person', 'eventType', 'gifts', 'completions'])
             ->get()
