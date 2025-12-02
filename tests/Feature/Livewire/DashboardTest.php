@@ -29,7 +29,7 @@ test('can open gift modal', function () {
         'person_id' => $person->id,
         'event_type_id' => $eventType->id,
         'date' => now()->addDays(10),
-        'recurrence' => 'yearly',
+        'is_annual' => true,
     ]);
 
     Livewire::test(Dashboard::class)
@@ -45,7 +45,7 @@ test('can close gift modal', function () {
         'person_id' => $person->id,
         'event_type_id' => $eventType->id,
         'date' => now()->addDays(10),
-        'recurrence' => 'yearly',
+        'is_annual' => true,
     ]);
 
     Livewire::test(Dashboard::class)
@@ -65,7 +65,7 @@ test('can add gift via modal', function () {
         'person_id' => $person->id,
         'event_type_id' => $eventType->id,
         'date' => now()->addDays(10),
-        'recurrence' => 'yearly',
+        'is_annual' => true,
     ]);
 
     Livewire::test(Dashboard::class)
@@ -91,7 +91,7 @@ test('can add gift without value', function () {
         'person_id' => $person->id,
         'event_type_id' => $eventType->id,
         'date' => now()->addDays(10),
-        'recurrence' => 'yearly',
+        'is_annual' => true,
     ]);
 
     Livewire::test(Dashboard::class)
@@ -114,7 +114,7 @@ test('validates gift title is required', function () {
         'person_id' => $person->id,
         'event_type_id' => $eventType->id,
         'date' => now()->addDays(10),
-        'recurrence' => 'yearly',
+        'is_annual' => true,
     ]);
 
     Livewire::test(Dashboard::class)
@@ -131,7 +131,7 @@ test('validates gift value is numeric', function () {
         'person_id' => $person->id,
         'event_type_id' => $eventType->id,
         'date' => now()->addDays(10),
-        'recurrence' => 'yearly',
+        'is_annual' => true,
     ]);
 
     Livewire::test(Dashboard::class)
@@ -149,7 +149,7 @@ test('can add gift with link', function () {
         'person_id' => $person->id,
         'event_type_id' => $eventType->id,
         'date' => now()->addDays(10),
-        'recurrence' => 'yearly',
+        'is_annual' => true,
     ]);
 
     Livewire::test(Dashboard::class)
@@ -172,7 +172,7 @@ test('validates gift link is valid url', function () {
         'person_id' => $person->id,
         'event_type_id' => $eventType->id,
         'date' => now()->addDays(10),
-        'recurrence' => 'yearly',
+        'is_annual' => true,
     ]);
 
     Livewire::test(Dashboard::class)
@@ -190,7 +190,7 @@ test('can toggle event completion', function () {
         'person_id' => $person->id,
         'event_type_id' => $eventType->id,
         'date' => now()->addDays(10),
-        'recurrence' => 'yearly',
+        'is_annual' => true,
     ]);
 
     expect($event->isCompletedForYear($event->next_occurrence_year))->toBeFalse();
@@ -209,7 +209,7 @@ test('can untoggle event completion', function () {
         'person_id' => $person->id,
         'event_type_id' => $eventType->id,
         'date' => now()->addDays(10),
-        'recurrence' => 'yearly',
+        'is_annual' => true,
     ]);
 
     // Mark as complete first
@@ -233,7 +233,7 @@ test('shows upcoming events including completed ones', function () {
         'person_id' => $person->id,
         'event_type_id' => $eventType->id,
         'date' => now()->addDays(10),
-        'recurrence' => 'yearly',
+        'is_annual' => true,
     ]);
 
     // Create past event
@@ -241,7 +241,7 @@ test('shows upcoming events including completed ones', function () {
         'person_id' => $person->id,
         'event_type_id' => $eventType->id,
         'date' => now()->subDays(10),
-        'recurrence' => 'yearly',
+        'is_annual' => true,
     ]);
 
     // Create completed upcoming event
@@ -249,7 +249,7 @@ test('shows upcoming events including completed ones', function () {
         'person_id' => $person->id,
         'event_type_id' => $eventType->id,
         'date' => now()->addDays(20),
-        'recurrence' => 'yearly',
+        'is_annual' => true,
     ]);
     $completedEvent->markCompleteForYear($completedEvent->next_occurrence_year);
 
@@ -272,7 +272,7 @@ test('does not show past events', function () {
         'person_id' => $person->id,
         'event_type_id' => $eventType->id,
         'date' => now()->subDays(10),
-        'recurrence' => 'yearly',
+        'is_annual' => true,
     ]);
 
     $component = Livewire::test(Dashboard::class);
@@ -319,7 +319,7 @@ test('filters events based on selected timeframe', function () {
         'person_id' => $person->id,
         'event_type_id' => $eventType->id,
         'date' => now()->addDays(20),
-        'recurrence' => 'yearly',
+        'is_annual' => true,
     ]);
 
     // Create event in 50 days (outside 30 days, within 60 days)
@@ -327,7 +327,7 @@ test('filters events based on selected timeframe', function () {
         'person_id' => $person->id,
         'event_type_id' => $eventType->id,
         'date' => now()->addDays(50),
-        'recurrence' => 'yearly',
+        'is_annual' => true,
     ]);
 
     // Create event in 100 days (outside 60 days, within 90 days)
@@ -335,7 +335,7 @@ test('filters events based on selected timeframe', function () {
         'person_id' => $person->id,
         'event_type_id' => $eventType->id,
         'date' => now()->addDays(100),
-        'recurrence' => 'yearly',
+        'is_annual' => true,
     ]);
 
     // Test 30 day timeframe
@@ -364,7 +364,7 @@ test('auto-fetches image from link when no image uploaded', function () {
         'person_id' => $person->id,
         'event_type_id' => $eventType->id,
         'date' => now()->addDays(10),
-        'recurrence' => 'yearly',
+        'is_annual' => true,
     ]);
 
     // Mock the LinkPreviewService

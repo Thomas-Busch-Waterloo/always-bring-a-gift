@@ -107,17 +107,17 @@
 
                     <div class="space-y-3">
 
-                        @if ($event->target_value && !$noPeeking)
+                        @if ($event->budget && !$noPeeking)
                             @php
                                 $totalValue = $event->totalGiftsValueForYear($event->next_occurrence_year);
                                 $remaining = $event->remainingValueForYear($event->next_occurrence_year);
-                                $percentage = $event->target_value > 0 ? ($totalValue / $event->target_value) * 100 : 0;
+                                $percentage = $event->budget > 0 ? ($totalValue / $event->budget) * 100 : 0;
                             @endphp
                             <div class="space-y-1">
                                 <div class="flex justify-between text-sm">
                                     <span class="{{ $isCompleted ? 'text-zinc-500 dark:text-zinc-500' : 'text-zinc-600 dark:text-zinc-400' }}">Budget</span>
                                     <span class="font-medium {{ $isCompleted ? 'text-zinc-600 dark:text-zinc-400' : 'text-zinc-900 dark:text-zinc-100' }}">
-                                        ${{ number_format($totalValue, 2) }} / ${{ number_format($event->target_value, 2) }}
+                                        ${{ number_format($totalValue, 2) }} / ${{ number_format($event->budget, 2) }}
                                     </span>
                                 </div>
                                 <div class="h-2 bg-zinc-200 dark:bg-zinc-700 rounded-full overflow-hidden">

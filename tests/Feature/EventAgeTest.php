@@ -13,13 +13,13 @@ afterEach(function () {
     Carbon::setTestNow();
 });
 
-test('calculates milestone correctly for yearly events', function () {
+test('calculates milestone correctly for annual events', function () {
     $person = Person::factory()->create();
     $eventType = EventType::factory()->create(['name' => 'Birthday']);
 
     // Birthday on December 31, 1990 (will turn 35 in 2025)
     // Test date is June 1, so this birthday hasn't happened yet this year
-    $event = Event::factory()->yearly()->create([
+    $event = Event::factory()->annual()->create([
         'person_id' => $person->id,
         'event_type_id' => $eventType->id,
         'show_milestone' => true,
@@ -29,14 +29,14 @@ test('calculates milestone correctly for yearly events', function () {
     expect($event->milestone)->toBe(35);
 });
 
-test('returns null milestone for non-yearly events', function () {
+test('returns null milestone for non-annual events', function () {
     $person = Person::factory()->create();
     $eventType = EventType::factory()->create(['name' => 'Party']);
 
     $event = Event::factory()->create([
         'person_id' => $person->id,
         'event_type_id' => $eventType->id,
-        'recurrence' => 'none',
+        'is_annual' => false,
         'show_milestone' => true,
         'date' => '2025-12-25',
     ]);
@@ -49,7 +49,7 @@ test('returns zero milestone for event in its original year', function () {
     $eventType = EventType::factory()->create(['name' => 'Anniversary']);
 
     // Event created this year
-    $event = Event::factory()->yearly()->create([
+    $event = Event::factory()->annual()->create([
         'person_id' => $person->id,
         'event_type_id' => $eventType->id,
         'show_milestone' => true,
@@ -67,7 +67,7 @@ test('generates correct ordinal suffixes for numbers', function (int $number, st
     // Test date is June 1, 2025, so use December 31 (after test date) to ensure next occurrence is this year
     $birthYear = 2025 - $number;
 
-    $event = Event::factory()->yearly()->create([
+    $event = Event::factory()->annual()->create([
         'person_id' => $person->id,
         'event_type_id' => $eventType->id,
         'show_milestone' => true,
@@ -93,12 +93,12 @@ test('generates correct ordinal suffixes for numbers', function (int $number, st
     [121, '121st'],
 ]);
 
-test('display name includes milestone for yearly events with milestone greater than zero', function () {
+test('display name includes milestone for annual events with milestone greater than zero', function () {
     $person = Person::factory()->create();
     $eventType = EventType::factory()->create(['name' => 'Anniversary']);
 
     // Anniversary from 2020 (5 years ago)
-    $event = Event::factory()->yearly()->create([
+    $event = Event::factory()->annual()->create([
         'person_id' => $person->id,
         'event_type_id' => $eventType->id,
         'show_milestone' => true,
@@ -108,26 +108,26 @@ test('display name includes milestone for yearly events with milestone greater t
     expect($event->display_name)->toBe('5th Anniversary');
 });
 
-test('display name shows just event type for non-yearly events', function () {
+test('display name shows just event type for non-annual events', function () {
     $person = Person::factory()->create();
     $eventType = EventType::factory()->create(['name' => 'Party']);
 
     $event = Event::factory()->create([
         'person_id' => $person->id,
         'event_type_id' => $eventType->id,
-        'recurrence' => 'none',
+        'is_annual' => false,
         'date' => '2025-12-25',
     ]);
 
     expect($event->display_name)->toBe('Party');
 });
 
-test('display name shows just event type for yearly events in year zero', function () {
+test('display name shows just event type for annual events in year zero', function () {
     $person = Person::factory()->create();
     $eventType = EventType::factory()->create(['name' => 'Anniversary']);
 
     // Event happening this year for the first time
-    $event = Event::factory()->yearly()->create([
+    $event = Event::factory()->annual()->create([
         'person_id' => $person->id,
         'event_type_id' => $eventType->id,
         'show_milestone' => true,
@@ -145,7 +145,7 @@ test('milestone calculation accounts for next occurrence year', function () {
     $eventType = EventType::factory()->create(['name' => 'Birthday']);
 
     // Birthday on January 1, 1990 - already passed this year
-    $event = Event::factory()->yearly()->create([
+    $event = Event::factory()->annual()->create([
         'person_id' => $person->id,
         'event_type_id' => $eventType->id,
         'show_milestone' => true,
@@ -164,7 +164,7 @@ test('milestone calculation for event that has not occurred this year', function
     $eventType = EventType::factory()->create(['name' => 'Birthday']);
 
     // Birthday on December 31, 1990 - has not occurred yet this year
-    $event = Event::factory()->yearly()->create([
+    $event = Event::factory()->annual()->create([
         'person_id' => $person->id,
         'event_type_id' => $eventType->id,
         'show_milestone' => true,
@@ -180,7 +180,7 @@ test('display name does not include milestone when flag is false', function () {
     $eventType = EventType::factory()->create(['name' => 'Christmas']);
 
     // Christmas event with show_milestone disabled
-    $event = Event::factory()->yearly()->create([
+    $event = Event::factory()->annual()->create([
         'person_id' => $person->id,
         'event_type_id' => $eventType->id,
         'show_milestone' => false,

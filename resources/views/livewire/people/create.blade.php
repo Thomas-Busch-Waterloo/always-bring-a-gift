@@ -26,11 +26,11 @@
 
         <div class="space-y-4">
             <div class="space-y-2">
-                <flux:checkbox wire:model.live="create_birthday_event" label="Create yearly Birthday event" />
+                <flux:checkbox wire:model.live="create_birthday_event" label="Create annual Birthday event" />
                 <div x-show="$wire.create_birthday_event" x-transition class="pl-6">
                     <flux:input
                         wire:model="birthday_target_value"
-                        label="Birthday Target Amount"
+                        label="Birthday Budget"
                         type="number"
                         step="0.01"
                         min="0"
@@ -40,11 +40,11 @@
             </div>
 
             <div class="space-y-2">
-                <flux:checkbox wire:model.live="create_christmas_event" label="Create yearly Christmas event" />
+                <flux:checkbox wire:model.live="create_christmas_event" label="Create annual Christmas event" />
                 <div x-show="$wire.create_christmas_event" x-transition class="pl-6">
                     <flux:input
                         wire:model="christmas_target_value"
-                        label="Christmas Target Amount"
+                        label="Christmas Budget"
                         type="number"
                         step="0.01"
                         min="0"

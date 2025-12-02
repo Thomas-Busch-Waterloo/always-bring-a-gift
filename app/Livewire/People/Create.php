@@ -63,10 +63,10 @@ class Create extends Component
                 Event::create([
                     'person_id' => $person->id,
                     'event_type_id' => $birthdayType->id,
-                    'recurrence' => 'yearly',
+                    'is_annual' => true,
                     'show_milestone' => true,
                     'date' => $validated['birthday'],
-                    'target_value' => $validated['birthday_target_value'] ?: null,
+                    'budget' => $validated['birthday_target_value'] ?: null,
                 ]);
             }
         }
@@ -78,9 +78,9 @@ class Create extends Component
                 Event::create([
                     'person_id' => $person->id,
                     'event_type_id' => $christmasType->id,
-                    'recurrence' => 'yearly',
+                    'is_annual' => true,
                     'date' => now()->year.'-12-25',
-                    'target_value' => $validated['christmas_target_value'] ?: null,
+                    'budget' => $validated['christmas_target_value'] ?: null,
                 ]);
             }
         }

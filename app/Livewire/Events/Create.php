@@ -13,13 +13,13 @@ class Create extends Component
 
     public ?int $event_type_id = null;
 
-    public string $recurrence = 'none';
+    public bool $is_annual = false;
 
     public bool $show_milestone = false;
 
     public string $date = '';
 
-    public string $target_value = '';
+    public string $budget = '';
 
     /**
      * Mount the component
@@ -37,14 +37,14 @@ class Create extends Component
     {
         $validated = $this->validate([
             'event_type_id' => ['required', 'exists:event_types,id'],
-            'recurrence' => ['required', 'in:none,yearly'],
+            'is_annual' => ['boolean'],
             'show_milestone' => ['boolean'],
             'date' => ['required', 'date'],
-            'target_value' => ['nullable', 'numeric', 'min:0'],
+            'budget' => ['nullable', 'numeric', 'min:0'],
         ]);
 
         $validated['person_id'] = $this->person->id;
-        $validated['target_value'] = $validated['target_value'] ?: null;
+        $validated['budget'] = $validated['budget'] ?: null;
 
         Event::create($validated);
 

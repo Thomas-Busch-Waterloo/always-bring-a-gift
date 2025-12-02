@@ -46,8 +46,8 @@
                         <tr class="text-left">
                             <th class="pb-3 font-semibold text-zinc-900 dark:text-zinc-100">Event Type</th>
                             <th class="pb-3 font-semibold text-zinc-900 dark:text-zinc-100">Date</th>
-                            <th class="pb-3 font-semibold text-zinc-900 dark:text-zinc-100">Recurrence</th>
-                            <th class="pb-3 font-semibold text-zinc-900 dark:text-zinc-100">Target</th>
+                            <th class="pb-3 font-semibold text-zinc-900 dark:text-zinc-100">Type</th>
+                            <th class="pb-3 font-semibold text-zinc-900 dark:text-zinc-100">Budget</th>
                             <th class="pb-3 font-semibold text-zinc-900 dark:text-zinc-100 w-1 text-center">Actions</th>
                         </tr>
                     </thead>
@@ -61,15 +61,15 @@
                                     {{ $event->date->format('M j, Y') }}
                                 </td>
                                 <td class="py-3">
-                                    @if ($event->recurrence === 'yearly')
-                                        <flux:badge variant="primary" size="sm">Yearly</flux:badge>
+                                    @if ($event->is_annual)
+                                        <flux:badge variant="primary" size="sm">Annual</flux:badge>
                                     @else
-                                        <span class="text-zinc-400 dark:text-zinc-500">-</span>
+                                        <span class="text-zinc-400 dark:text-zinc-500">One-time</span>
                                     @endif
                                 </td>
                                 <td class="py-3 text-zinc-600 dark:text-zinc-400">
-                                    @if ($event->target_value)
-                                        ${{ number_format($event->target_value, 2) }}
+                                    @if ($event->budget)
+                                        ${{ number_format($event->budget, 2) }}
                                     @else
                                         <span class="text-zinc-400 dark:text-zinc-500">-</span>
                                     @endif

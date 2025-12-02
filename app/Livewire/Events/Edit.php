@@ -12,13 +12,13 @@ class Edit extends Component
 
     public int $event_type_id;
 
-    public string $recurrence = 'none';
+    public bool $is_annual = false;
 
     public bool $show_milestone = false;
 
     public string $date = '';
 
-    public string $target_value = '';
+    public string $budget = '';
 
     /**
      * Mount the component
@@ -27,10 +27,10 @@ class Edit extends Component
     {
         $this->event = $event->load('person');
         $this->event_type_id = $event->event_type_id;
-        $this->recurrence = $event->recurrence;
+        $this->is_annual = $event->is_annual;
         $this->show_milestone = $event->show_milestone;
         $this->date = $event->date->format('Y-m-d');
-        $this->target_value = $event->target_value ?? '';
+        $this->budget = $event->budget ?? '';
     }
 
     /**
@@ -40,13 +40,13 @@ class Edit extends Component
     {
         $validated = $this->validate([
             'event_type_id' => ['required', 'exists:event_types,id'],
-            'recurrence' => ['required', 'in:none,yearly'],
+            'is_annual' => ['boolean'],
             'show_milestone' => ['boolean'],
             'date' => ['required', 'date'],
-            'target_value' => ['nullable', 'numeric', 'min:0'],
+            'budget' => ['nullable', 'numeric', 'min:0'],
         ]);
 
-        $validated['target_value'] = $validated['target_value'] ?: null;
+        $validated['budget'] = $validated['budget'] ?: null;
 
         $this->event->update($validated);
 

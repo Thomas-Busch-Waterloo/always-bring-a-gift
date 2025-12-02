@@ -52,7 +52,7 @@ test('can create person with birthday event', function () {
     expect($event)
         ->not->toBeNull()
         ->and($event->eventType->name)->toBe('Birthday')
-        ->and($event->recurrence)->toBe('yearly')
+        ->and($event->is_annual)->toBeTrue()
         ->and($event->date->format('Y-m-d'))->toBe('1985-03-20');
 });
 
@@ -72,7 +72,7 @@ test('can create person with christmas event', function () {
     expect($event)
         ->not->toBeNull()
         ->and($event->eventType->name)->toBe('Christmas')
-        ->and($event->recurrence)->toBe('yearly')
+        ->and($event->is_annual)->toBeTrue()
         ->and($event->date->format('m-d'))->toBe('12-25');
 });
 

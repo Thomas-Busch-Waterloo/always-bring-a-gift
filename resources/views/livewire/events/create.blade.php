@@ -12,16 +12,17 @@
             @endforeach
         </flux:select>
 
-        <flux:select wire:model="recurrence" label="Recurrence" required>
-            <option value="none">One-time</option>
-            <option value="yearly">Yearly</option>
-        </flux:select>
-
-        <flux:switch wire:model="show_milestone" label="Track milestone (e.g., 38th Birthday, 5th Anniversary)" />
-
         <flux:input wire:model="date" label="Date" type="date" required />
 
-        <flux:input wire:model="target_value" label="Target Budget (Optional)" type="number" step="0.01" min="0" placeholder="100.00" />
+        <flux:switch wire:model.live="is_annual" label="Annual Event" />
+
+        @if ($is_annual)
+            <div x-transition class="pl-6">
+                <flux:switch wire:model="show_milestone" label="Track milestone (e.g., 38th Birthday, 5th Anniversary)" />
+            </div>
+        @endif
+
+        <flux:input wire:model="budget" label="Budget (Optional)" type="number" step="0.01" min="0" placeholder="100.00" />
 
         <div class="flex gap-3">
             <flux:button type="submit" variant="primary">

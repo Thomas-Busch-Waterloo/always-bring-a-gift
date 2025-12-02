@@ -22,10 +22,10 @@ class Event extends Model
     protected $fillable = [
         'person_id',
         'event_type_id',
-        'recurrence',
+        'is_annual',
         'show_milestone',
         'date',
-        'target_value',
+        'budget',
     ];
 
     /**
@@ -37,7 +37,8 @@ class Event extends Model
     {
         return [
             'date' => 'date',
-            'target_value' => 'decimal:2',
+            'budget' => 'decimal:2',
+            'is_annual' => 'boolean',
             'show_milestone' => 'boolean',
         ];
     }
@@ -89,7 +90,7 @@ class Event extends Model
     {
         return Attribute::make(
             get: function (): Carbon {
-                if ($this->recurrence === 'none') {
+                if (! $this->is_annual) {
                     return $this->date;
                 }
 
@@ -148,11 +149,11 @@ class Event extends Model
      */
     public function remainingValueForYear(int $year): float
     {
-        if ($this->target_value === null) {
+        if ($this->budget === null) {
             return 0;
         }
 
-        return (float) $this->target_value - $this->totalGiftsValueForYear($year);
+        return (float) $this->budget - $this->totalGiftsValueForYear($year);
     }
 
     /**
@@ -184,8 +185,8 @@ class Event extends Model
     {
         return Attribute::make(
             get: function (): ?int {
-                // Only calculate milestone for yearly recurring events
-                if ($this->recurrence !== 'yearly') {
+                // Only calculate milestone for annual recurring events
+                if (! $this->is_annual) {
                     return null;
                 }
 

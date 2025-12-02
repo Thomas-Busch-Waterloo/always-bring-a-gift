@@ -19,8 +19,8 @@
                             </h3>
                             <p class="text-sm text-zinc-600 dark:text-zinc-400">
                                 {{ $event->date->format('F j, Y') }}
-                                @if ($event->recurrence === 'yearly')
-                                    <flux:badge variant="primary" size="sm" class="ml-2">Yearly</flux:badge>
+                                @if ($event->is_annual)
+                                    <flux:badge variant="primary" size="sm" class="ml-2">Annual</flux:badge>
                                 @endif
                             </p>
                         </div>

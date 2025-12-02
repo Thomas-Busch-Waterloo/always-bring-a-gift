@@ -4,8 +4,8 @@
             <flux:heading size="xl">{{ $event->eventType->name }} - {{ $event->person->name }}</flux:heading>
             <flux:subheading>
                 {{ $event->next_occurrence->format('F j, Y') }} ({{ $event->next_occurrence->diffForHumans() }})
-                @if ($event->recurrence === 'yearly')
-                    <flux:badge variant="primary" class="ml-2">Yearly</flux:badge>
+                @if ($event->is_annual)
+                    <flux:badge variant="primary" class="ml-2">Annual</flux:badge>
                 @endif
             </flux:subheading>
         </div>
@@ -19,18 +19,18 @@
         <flux:callout variant="success">{{ session('status') }}</flux:callout>
     @endif
 
-    @if ($event->target_value)
+    @if ($event->budget)
         @php
             $totalValue = $event->totalGiftsValueForYear($nextOccurrenceYear);
             $remaining = $event->remainingValueForYear($nextOccurrenceYear);
-            $percentage = $event->target_value > 0 ? ($totalValue / $event->target_value) * 100 : 0;
+            $percentage = $event->budget > 0 ? ($totalValue / $event->budget) * 100 : 0;
         @endphp
         <div class="rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 p-6">
             <h3 class="text-lg font-semibold mb-4">Budget for {{ $nextOccurrenceYear }}</h3>
             <div class="space-y-2">
                 <div class="flex justify-between text-sm">
                     <span>Spent</span>
-                    <span class="font-medium">${{ number_format($totalValue, 2) }} / ${{ number_format($event->target_value, 2) }}</span>
+                    <span class="font-medium">${{ number_format($totalValue, 2) }} / ${{ number_format($event->budget, 2) }}</span>
                 </div>
                 <div class="h-3 bg-zinc-200 dark:bg-zinc-700 rounded-full overflow-hidden">
                     <div class="h-full {{ $percentage > 100 ? 'bg-red-500' : 'bg-green-500' }}" style="width: {{ min($percentage, 100) }}%"></div>

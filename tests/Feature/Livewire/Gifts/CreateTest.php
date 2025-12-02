@@ -26,7 +26,7 @@ test('can view create gift page', function () {
         'person_id' => $person->id,
         'event_type_id' => $eventType->id,
         'date' => now()->addDays(10),
-        'recurrence' => 'yearly',
+        'is_annual' => true,
     ]);
 
     Livewire::test(Create::class, ['event' => $event, 'year' => now()->year])
@@ -40,7 +40,7 @@ test('can create gift with all fields', function () {
         'person_id' => $person->id,
         'event_type_id' => $eventType->id,
         'date' => now()->addDays(10),
-        'recurrence' => 'yearly',
+        'is_annual' => true,
     ]);
 
     $file = UploadedFile::fake()->image('gift.jpg');
@@ -71,7 +71,7 @@ test('can create gift without optional fields', function () {
         'person_id' => $person->id,
         'event_type_id' => $eventType->id,
         'date' => now()->addDays(10),
-        'recurrence' => 'yearly',
+        'is_annual' => true,
     ]);
 
     Livewire::test(Create::class, ['event' => $event, 'year' => now()->year])
@@ -95,7 +95,7 @@ test('validates title is required', function () {
         'person_id' => $person->id,
         'event_type_id' => $eventType->id,
         'date' => now()->addDays(10),
-        'recurrence' => 'yearly',
+        'is_annual' => true,
     ]);
 
     Livewire::test(Create::class, ['event' => $event, 'year' => now()->year])
@@ -111,7 +111,7 @@ test('validates value is numeric', function () {
         'person_id' => $person->id,
         'event_type_id' => $eventType->id,
         'date' => now()->addDays(10),
-        'recurrence' => 'yearly',
+        'is_annual' => true,
     ]);
 
     Livewire::test(Create::class, ['event' => $event, 'year' => now()->year])
@@ -128,7 +128,7 @@ test('validates link is valid url', function () {
         'person_id' => $person->id,
         'event_type_id' => $eventType->id,
         'date' => now()->addDays(10),
-        'recurrence' => 'yearly',
+        'is_annual' => true,
     ]);
 
     Livewire::test(Create::class, ['event' => $event, 'year' => now()->year])
@@ -145,7 +145,7 @@ test('validates image is an image file', function () {
         'person_id' => $person->id,
         'event_type_id' => $eventType->id,
         'date' => now()->addDays(10),
-        'recurrence' => 'yearly',
+        'is_annual' => true,
     ]);
 
     $file = UploadedFile::fake()->create('document.pdf', 100);
@@ -164,7 +164,7 @@ test('auto-fetches image from link when no image uploaded', function () {
         'person_id' => $person->id,
         'event_type_id' => $eventType->id,
         'date' => now()->addDays(10),
-        'recurrence' => 'yearly',
+        'is_annual' => true,
     ]);
 
     // Mock the LinkPreviewService

@@ -21,19 +21,19 @@ class EventFactory extends Factory
         return [
             'person_id' => Person::factory(),
             'event_type_id' => EventType::factory(),
-            'recurrence' => 'none',
+            'is_annual' => false,
             'date' => fake()->dateTimeBetween('-1 year', '+1 year'),
-            'target_value' => fake()->optional()->randomFloat(2, 10, 500),
+            'budget' => fake()->optional()->randomFloat(2, 10, 500),
         ];
     }
 
     /**
-     * Indicate that the event is yearly recurring
+     * Indicate that the event is annual recurring
      */
-    public function yearly(): static
+    public function annual(): static
     {
         return $this->state(fn (array $attributes) => [
-            'recurrence' => 'yearly',
+            'is_annual' => true,
         ]);
     }
 

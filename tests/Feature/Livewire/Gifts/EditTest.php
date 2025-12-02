@@ -26,7 +26,7 @@ test('can view edit gift page', function () {
         'person_id' => $person->id,
         'event_type_id' => $eventType->id,
         'date' => now()->addDays(10),
-        'recurrence' => 'yearly',
+        'is_annual' => true,
     ]);
     $gift = Gift::factory()->create([
         'event_id' => $event->id,
@@ -46,7 +46,7 @@ test('can update gift with all fields', function () {
         'person_id' => $person->id,
         'event_type_id' => $eventType->id,
         'date' => now()->addDays(10),
-        'recurrence' => 'yearly',
+        'is_annual' => true,
     ]);
     $gift = Gift::factory()->create([
         'event_id' => $event->id,
@@ -80,7 +80,7 @@ test('can update gift without changing image', function () {
         'person_id' => $person->id,
         'event_type_id' => $eventType->id,
         'date' => now()->addDays(10),
-        'recurrence' => 'yearly',
+        'is_annual' => true,
     ]);
 
     $originalImage = UploadedFile::fake()->image('original.jpg');
@@ -110,7 +110,7 @@ test('can replace existing image', function () {
         'person_id' => $person->id,
         'event_type_id' => $eventType->id,
         'date' => now()->addDays(10),
-        'recurrence' => 'yearly',
+        'is_annual' => true,
     ]);
 
     $originalImage = UploadedFile::fake()->image('original.jpg');
@@ -142,7 +142,7 @@ test('validates title is required on update', function () {
         'person_id' => $person->id,
         'event_type_id' => $eventType->id,
         'date' => now()->addDays(10),
-        'recurrence' => 'yearly',
+        'is_annual' => true,
     ]);
     $gift = Gift::factory()->create([
         'event_id' => $event->id,
@@ -163,7 +163,7 @@ test('validates value is numeric on update', function () {
         'person_id' => $person->id,
         'event_type_id' => $eventType->id,
         'date' => now()->addDays(10),
-        'recurrence' => 'yearly',
+        'is_annual' => true,
     ]);
     $gift = Gift::factory()->create([
         'event_id' => $event->id,
@@ -184,7 +184,7 @@ test('validates link is valid url on update', function () {
         'person_id' => $person->id,
         'event_type_id' => $eventType->id,
         'date' => now()->addDays(10),
-        'recurrence' => 'yearly',
+        'is_annual' => true,
     ]);
     $gift = Gift::factory()->create([
         'event_id' => $event->id,
@@ -205,7 +205,7 @@ test('validates image is an image file on update', function () {
         'person_id' => $person->id,
         'event_type_id' => $eventType->id,
         'date' => now()->addDays(10),
-        'recurrence' => 'yearly',
+        'is_annual' => true,
     ]);
     $gift = Gift::factory()->create([
         'event_id' => $event->id,
@@ -228,7 +228,7 @@ test('auto-fetches image from link when no image exists', function () {
         'person_id' => $person->id,
         'event_type_id' => $eventType->id,
         'date' => now()->addDays(10),
-        'recurrence' => 'yearly',
+        'is_annual' => true,
     ]);
     $gift = Gift::factory()->create([
         'event_id' => $event->id,
