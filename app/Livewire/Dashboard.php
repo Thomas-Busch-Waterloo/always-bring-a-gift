@@ -39,9 +39,8 @@ class Dashboard extends Component
             ->get()
             ->filter(function ($event) use ($today, $endDate) {
                 $nextOccurrence = $event->next_occurrence;
-                $isCompleted = $event->isCompletedForYear($nextOccurrence->year);
 
-                return ! $isCompleted && $nextOccurrence->between($today, $endDate);
+                return $nextOccurrence->between($today, $endDate);
             })
             ->sortBy('next_occurrence')
             ->values();

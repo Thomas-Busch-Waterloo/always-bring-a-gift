@@ -73,17 +73,25 @@
     @else
         <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             @foreach ($this->upcomingEvents as $event)
-                <div class="rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 p-6 shadow-sm">
+                @php
+                    $isCompleted = $event->isCompletedForYear($event->next_occurrence_year);
+                @endphp
+                <div class="rounded-lg border p-6 shadow-sm {{ $isCompleted ? 'border-zinc-300/50 dark:border-zinc-600/50 bg-zinc-50/50 dark:bg-zinc-800/50 opacity-75' : 'border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900' }}">
                     <div class="flex items-start justify-between mb-4">
-                        <div>
-                            <h3 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-                                {{ $event->person->name }}
-                            </h3>
-                            <p class="text-sm text-zinc-600 dark:text-zinc-400">
-                                {{ $event->eventType->name }}
-                            </p>
+                        <div class="flex items-center gap-2">
+                            <div>
+                                <h3 class="text-lg font-semibold {{ $isCompleted ? 'text-zinc-700 dark:text-zinc-300' : 'text-zinc-900 dark:text-zinc-100' }}">
+                                    {{ $event->person->name }}
+                                </h3>
+                                <p class="text-sm {{ $isCompleted ? 'text-zinc-500 dark:text-zinc-500' : 'text-zinc-600 dark:text-zinc-400' }}">
+                                    {{ $event->eventType->name }}
+                                </p>
+                            </div>
+                            @if ($isCompleted)
+                                <flux:badge variant="success" size="sm" icon="check">Complete</flux:badge>
+                            @endif
                         </div>
-                        @if ($event->recurrence === 'yearly')
+                        @if ($event->recurrence === 'yearly' && !$isCompleted)
                             <flux:badge variant="primary" size="sm">Yearly</flux:badge>
                         @endif
                     </div>
@@ -97,7 +105,7 @@
                             </span>
                         </div>
 
-                        @if ($event->target_value)
+                        @if ($event->target_value && !$isCompleted)
                             @php
                                 $totalValue = $event->totalGiftsValueForYear($event->next_occurrence_year);
                                 $remaining = $event->remainingValueForYear($event->next_occurrence_year);
@@ -126,21 +134,23 @@
                         @endif
 
                         <div class="flex gap-2 pt-2">
+                            @if (!$isCompleted)
+                                <flux:button
+                                    size="sm"
+                                    variant="primary"
+                                    wire:click="openGiftModal({{ $event->id }})"
+                                    icon="plus"
+                                >
+                                    Add Gift
+                                </flux:button>
+                            @endif
                             <flux:button
                                 size="sm"
-                                variant="primary"
-                                wire:click="openGiftModal({{ $event->id }})"
-                                icon="plus"
-                            >
-                                Add Gift
-                            </flux:button>
-                            <flux:button
-                                size="sm"
-                                variant="outline"
+                                variant="{{ $isCompleted ? 'ghost' : 'outline' }}"
                                 wire:click="toggleCompletion({{ $event->id }})"
-                                icon="check"
+                                icon="{{ $isCompleted ? 'x-mark' : 'check' }}"
                             >
-                                Complete
+                                {{ $isCompleted ? 'Uncomplete' : 'Complete' }}
                             </flux:button>
                             <flux:button
                                 size="sm"

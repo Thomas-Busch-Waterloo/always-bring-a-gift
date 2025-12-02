@@ -181,7 +181,7 @@ test('can untoggle event completion', function () {
     expect($event->isCompletedForYear($event->next_occurrence_year))->toBeFalse();
 });
 
-test('shows only upcoming uncompleted events', function () {
+test('shows upcoming events including completed ones', function () {
     $person = Person::factory()->create();
     $eventType = EventType::factory()->create(['name' => 'Birthday']);
 
@@ -201,7 +201,7 @@ test('shows only upcoming uncompleted events', function () {
         'recurrence' => 'yearly',
     ]);
 
-    // Create completed event
+    // Create completed upcoming event
     $completedEvent = Event::factory()->create([
         'person_id' => $person->id,
         'event_type_id' => $eventType->id,
@@ -213,9 +213,29 @@ test('shows only upcoming uncompleted events', function () {
     $component = Livewire::test(Dashboard::class);
     $upcomingEvents = $component->get('upcomingEvents');
 
-    expect($upcomingEvents)
-        ->toHaveCount(1)
-        ->first()->id->toBe($upcomingEvent->id);
+    // Should show both upcoming events (including the completed one)
+    expect($upcomingEvents)->toHaveCount(2);
+    expect($upcomingEvents->pluck('id')->toArray())
+        ->toContain($upcomingEvent->id)
+        ->toContain($completedEvent->id);
+});
+
+test('does not show past events', function () {
+    $person = Person::factory()->create();
+    $eventType = EventType::factory()->create(['name' => 'Birthday']);
+
+    // Create past event
+    $pastEvent = Event::factory()->create([
+        'person_id' => $person->id,
+        'event_type_id' => $eventType->id,
+        'date' => now()->subDays(10),
+        'recurrence' => 'yearly',
+    ]);
+
+    $component = Livewire::test(Dashboard::class);
+    $upcomingEvents = $component->get('upcomingEvents');
+
+    expect($upcomingEvents)->toHaveCount(0);
 });
 
 test('defaults to 30 day timeframe', function () {
