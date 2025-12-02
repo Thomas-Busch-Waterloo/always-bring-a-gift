@@ -85,9 +85,13 @@
                 <div class="rounded-lg border p-6 shadow-sm flex flex-col {{ $isCompleted ? 'border-zinc-300/50 dark:border-zinc-600/50 bg-zinc-50/50 dark:bg-zinc-800/50 opacity-75' : 'border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900' }}">
                     <div class="flex items-start justify-between mb-3">
                         <div>
-                            <h3 class="text-lg font-semibold {{ $isCompleted ? 'text-zinc-700 dark:text-zinc-300' : 'text-zinc-900 dark:text-zinc-100' }}">
+                            <a
+                                href="{{ route('people.show', $event->person) }}"
+                                wire:navigate
+                                class="text-lg font-semibold {{ $isCompleted ? 'text-zinc-700 dark:text-zinc-300' : 'text-zinc-900 dark:text-zinc-100' }} no-underline hover:underline hover:{{ $isCompleted ? 'text-zinc-700 dark:text-zinc-300' : 'text-zinc-900 dark:text-zinc-100' }} transition-colors"
+                            >
                                 {{ $event->person->name }}
-                            </h3>
+                            </a>
                             <a
                                 href="{{ route('events.show', $event) }}"
                                 wire:navigate
