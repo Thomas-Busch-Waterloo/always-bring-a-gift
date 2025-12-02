@@ -2,12 +2,18 @@
     <div class="flex items-center justify-between">
         <div>
             <flux:heading size="xl">Upcoming Events</flux:heading>
-            <flux:subheading>Events in the next 30 days</flux:subheading>
+            <flux:subheading>Events in the next 90 days</flux:subheading>
         </div>
         <flux:button variant="primary" href="{{ route('people.index') }}" icon="users">
             Manage People
         </flux:button>
     </div>
+
+    @if (session('status'))
+        <flux:callout variant="success">
+            {{ session('status') }}
+        </flux:callout>
+    @endif
 
     @if ($this->upcomingEvents->isEmpty())
         <flux:callout variant="info">
@@ -70,8 +76,29 @@
                         @endif
 
                         <div class="flex gap-2 pt-2">
-                            <flux:button size="sm" variant="outline" href="{{ route('events.show', $event) }}" class="flex-1">
-                                View Details
+                            <flux:button
+                                size="sm"
+                                variant="primary"
+                                wire:click="openGiftModal({{ $event->id }})"
+                                icon="plus"
+                            >
+                                Add Gift
+                            </flux:button>
+                            <flux:button
+                                size="sm"
+                                variant="outline"
+                                wire:click="toggleCompletion({{ $event->id }})"
+                                icon="check"
+                            >
+                                Complete
+                            </flux:button>
+                            <flux:button
+                                size="sm"
+                                variant="ghost"
+                                href="{{ route('events.show', $event) }}"
+                                icon="arrow-right"
+                            >
+                                Details
                             </flux:button>
                         </div>
                     </div>
@@ -79,4 +106,48 @@
             @endforeach
         </div>
     @endif
+
+    {{-- Add Gift Modal --}}
+    <flux:modal wire:model="showGiftModal" class="max-w-md">
+        <form wire:submit="saveGift" class="space-y-6">
+            <div>
+                <flux:heading size="lg">Add Gift</flux:heading>
+                @if ($selectedEventId)
+                    @php
+                        $selectedEvent = $this->upcomingEvents->firstWhere('id', $selectedEventId);
+                    @endphp
+                    @if ($selectedEvent)
+                        <flux:subheading>
+                            {{ $selectedEvent->eventType->name }} for {{ $selectedEvent->person->name }} ({{ $selectedEvent->next_occurrence_year }})
+                        </flux:subheading>
+                    @endif
+                @endif
+            </div>
+
+            <flux:input
+                wire:model="giftTitle"
+                label="Gift Title"
+                placeholder="e.g., Watch, Book, Gift Card..."
+                required
+            />
+
+            <flux:input
+                wire:model="giftValue"
+                label="Value (Optional)"
+                type="number"
+                step="0.01"
+                min="0"
+                placeholder="50.00"
+            />
+
+            <div class="flex gap-3 justify-end">
+                <flux:button type="button" variant="ghost" wire:click="closeGiftModal">
+                    Cancel
+                </flux:button>
+                <flux:button type="submit" variant="primary">
+                    Add Gift
+                </flux:button>
+            </div>
+        </form>
+    </flux:modal>
 </div>
