@@ -5,7 +5,8 @@
     </div>
 
     <form wire:submit="save" class="max-w-2xl space-y-6">
-        <flux:select wire:model="event_type_id" label="Event Type" placeholder="Select event type..." required>
+        <flux:select wire:model="event_type_id" label="Event Type" required>
+            <option value="">Select event type...</option>
             @foreach ($eventTypes as $type)
                 <option value="{{ $type->id }}">{{ $type->name }}</option>
             @endforeach

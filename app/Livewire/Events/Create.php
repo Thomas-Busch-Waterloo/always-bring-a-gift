@@ -11,7 +11,7 @@ class Create extends Component
 {
     public Person $person;
 
-    public int $event_type_id;
+    public ?int $event_type_id = null;
 
     public string $recurrence = 'none';
 
