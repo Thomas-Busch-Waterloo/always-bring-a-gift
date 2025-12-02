@@ -21,42 +21,48 @@
     </div>
 
     {{-- Timeframe Selector --}}
-    <div class="flex gap-2 flex-wrap">
-        <flux:button
-            size="sm"
-            variant="{{ $timeframeDays === 30 ? 'primary' : 'ghost' }}"
-            wire:click="setTimeframe(30)"
-        >
-            30 Days
-        </flux:button>
-        <flux:button
-            size="sm"
-            variant="{{ $timeframeDays === 60 ? 'primary' : 'ghost' }}"
-            wire:click="setTimeframe(60)"
-        >
-            60 Days
-        </flux:button>
-        <flux:button
-            size="sm"
-            variant="{{ $timeframeDays === 90 ? 'primary' : 'ghost' }}"
-            wire:click="setTimeframe(90)"
-        >
-            90 Days
-        </flux:button>
-        <flux:button
-            size="sm"
-            variant="{{ $timeframeDays === 180 ? 'primary' : 'ghost' }}"
-            wire:click="setTimeframe(180)"
-        >
-            6 Months
-        </flux:button>
-        <flux:button
-            size="sm"
-            variant="{{ $timeframeDays === 365 ? 'primary' : 'ghost' }}"
-            wire:click="setTimeframe(365)"
-        >
-            1 Year
-        </flux:button>
+    <div class="flex gap-2 flex-wrap items-center justify-between">
+        <div class="flex gap-2 flex-wrap">
+            <flux:button
+                size="sm"
+                variant="{{ $timeframeDays === 30 ? 'primary' : 'ghost' }}"
+                wire:click="setTimeframe(30)"
+            >
+                30 Days
+            </flux:button>
+            <flux:button
+                size="sm"
+                variant="{{ $timeframeDays === 60 ? 'primary' : 'ghost' }}"
+                wire:click="setTimeframe(60)"
+            >
+                60 Days
+            </flux:button>
+            <flux:button
+                size="sm"
+                variant="{{ $timeframeDays === 90 ? 'primary' : 'ghost' }}"
+                wire:click="setTimeframe(90)"
+            >
+                90 Days
+            </flux:button>
+            <flux:button
+                size="sm"
+                variant="{{ $timeframeDays === 180 ? 'primary' : 'ghost' }}"
+                wire:click="setTimeframe(180)"
+            >
+                6 Months
+            </flux:button>
+            <flux:button
+                size="sm"
+                variant="{{ $timeframeDays === 365 ? 'primary' : 'ghost' }}"
+                wire:click="setTimeframe(365)"
+            >
+                1 Year
+            </flux:button>
+        </div>
+        <div class="flex items-center gap-2">
+            <span class="text-sm text-zinc-600 dark:text-zinc-400">No Peeking</span>
+            <flux:switch wire:model.live="noPeeking" />
+        </div>
     </div>
 
     @if (session('status'))
@@ -77,35 +83,27 @@
                     $isCompleted = $event->isCompletedForYear($event->next_occurrence_year);
                 @endphp
                 <div class="rounded-lg border p-6 shadow-sm flex flex-col {{ $isCompleted ? 'border-zinc-300/50 dark:border-zinc-600/50 bg-zinc-50/50 dark:bg-zinc-800/50 opacity-75' : 'border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900' }}">
-                    <div class="flex items-start justify-between mb-4">
-                        <div class="flex items-center gap-2">
-                            <div>
-                                <h3 class="text-lg font-semibold {{ $isCompleted ? 'text-zinc-700 dark:text-zinc-300' : 'text-zinc-900 dark:text-zinc-100' }}">
-                                    {{ $event->person->name }}
-                                </h3>
-                                <p class="text-sm {{ $isCompleted ? 'text-zinc-500 dark:text-zinc-500' : 'text-zinc-600 dark:text-zinc-400' }}">
-                                    {{ $event->eventType->name }}
-                                </p>
-                            </div>
-                            @if ($isCompleted)
-                                <flux:badge variant="success" size="sm" icon="check">Complete</flux:badge>
-                            @endif
+                    <div class="flex items-start justify-between mb-3">
+                        <div>
+                            <h3 class="text-lg font-semibold {{ $isCompleted ? 'text-zinc-700 dark:text-zinc-300' : 'text-zinc-900 dark:text-zinc-100' }}">
+                                {{ $event->person->name }}
+                            </h3>
+                            <a
+                                href="{{ route('events.show', $event) }}"
+                                wire:navigate
+                                class="text-sm {{ $isCompleted ? 'text-zinc-500 dark:text-zinc-500' : 'text-zinc-600 dark:text-zinc-400' }} no-underline hover:underline hover:{{ $isCompleted ? 'text-zinc-700 dark:text-zinc-300' : 'text-zinc-900 dark:text-zinc-100' }} transition-colors inline-block"
+                            >
+                                {{ $event->eventType->name }} • {{ $event->next_occurrence->format('M j') }} ({{ $event->next_occurrence->diffForHumans() }})
+                            </a>
                         </div>
-                        @if ($event->recurrence === 'yearly' && !$isCompleted)
-                            <flux:badge variant="primary" size="sm">Yearly</flux:badge>
+                        @if ($isCompleted)
+                            <flux:badge color="green" variant="solid" size="sm" icon="check">Complete</flux:badge>
                         @endif
                     </div>
 
                     <div class="space-y-3">
-                        <div class="flex items-center gap-2 text-sm">
-                            <flux:icon.calendar-days class="size-4 text-zinc-500 dark:text-zinc-400" />
-                            <span class="text-zinc-700 dark:text-zinc-300">
-                                {{ $event->next_occurrence->format('F j, Y') }}
-                                ({{ $event->next_occurrence->diffForHumans() }})
-                            </span>
-                        </div>
 
-                        @if ($event->target_value && !$isCompleted)
+                        @if ($event->target_value && !$noPeeking)
                             @php
                                 $totalValue = $event->totalGiftsValueForYear($event->next_occurrence_year);
                                 $remaining = $event->remainingValueForYear($event->next_occurrence_year);
@@ -113,28 +111,56 @@
                             @endphp
                             <div class="space-y-1">
                                 <div class="flex justify-between text-sm">
-                                    <span class="text-zinc-600 dark:text-zinc-400">Budget</span>
-                                    <span class="font-medium text-zinc-900 dark:text-zinc-100">
+                                    <span class="{{ $isCompleted ? 'text-zinc-500 dark:text-zinc-500' : 'text-zinc-600 dark:text-zinc-400' }}">Budget</span>
+                                    <span class="font-medium {{ $isCompleted ? 'text-zinc-600 dark:text-zinc-400' : 'text-zinc-900 dark:text-zinc-100' }}">
                                         ${{ number_format($totalValue, 2) }} / ${{ number_format($event->target_value, 2) }}
                                     </span>
                                 </div>
                                 <div class="h-2 bg-zinc-200 dark:bg-zinc-700 rounded-full overflow-hidden">
-                                    <div class="h-full {{ $percentage > 100 ? 'bg-red-500' : 'bg-green-500' }}" style="width: {{ min($percentage, 100) }}%"></div>
+                                    <div class="h-full {{ $isCompleted ? 'bg-zinc-400 dark:bg-zinc-500' : ($percentage > 100 ? 'bg-red-400 dark:bg-red-500' : 'bg-blue-500 dark:bg-blue-400') }}" style="width: {{ min($percentage, 100) }}%"></div>
                                 </div>
-                                @if ($remaining < 0)
-                                    <p class="text-xs text-red-600 dark:text-red-400">
-                                        Over budget by ${{ number_format(abs($remaining), 2) }}
-                                    </p>
-                                @elseif ($remaining > 0)
-                                    <p class="text-xs text-zinc-600 dark:text-zinc-400">
-                                        ${{ number_format($remaining, 2) }} remaining
-                                    </p>
+                                @if (!$isCompleted)
+                                    @if ($remaining < 0)
+                                        <p class="text-xs text-red-500 dark:text-red-400">
+                                            Over budget by ${{ number_format(abs($remaining), 2) }}
+                                        </p>
+                                    @elseif ($remaining > 0)
+                                        <p class="text-xs text-zinc-600 dark:text-zinc-400">
+                                            ${{ number_format($remaining, 2) }} remaining
+                                        </p>
+                                    @endif
                                 @endif
                             </div>
                         @endif
+
+                        @if (!$noPeeking)
+                            @php
+                                $giftsThisYear = $event->gifts()->where('year', $event->next_occurrence_year)->get();
+                            @endphp
+                            @if ($giftsThisYear->isNotEmpty())
+                                <div class="space-y-1">
+                                    <p class="text-xs font-medium {{ $isCompleted ? 'text-zinc-600 dark:text-zinc-500' : 'text-zinc-700 dark:text-zinc-400' }}">
+                                        Gifts ({{ $giftsThisYear->count() }}):
+                                    </p>
+                                    <ul class="space-y-1">
+                                        @foreach ($giftsThisYear as $gift)
+                                            <li class="text-xs {{ $isCompleted ? 'text-zinc-500 dark:text-zinc-500' : 'text-zinc-600 dark:text-zinc-400' }} flex items-center gap-1">
+                                                <flux:icon.gift class="size-3 {{ $isCompleted ? 'text-zinc-400 dark:text-zinc-600' : 'text-zinc-500 dark:text-zinc-500' }}" />
+                                                <span>{{ $gift->title }}</span>
+                                                @if ($gift->value)
+                                                    <span class="{{ $isCompleted ? 'text-zinc-400 dark:text-zinc-600' : 'text-zinc-500 dark:text-zinc-500' }}">
+                                                        (${{ number_format($gift->value, 2) }})
+                                                    </span>
+                                                @endif
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
+                        @endif
                     </div>
 
-                    <div class="flex gap-2 pt-2 mt-auto">
+                    <div class="flex gap-2 pt-4 mt-auto">
                             @if (!$isCompleted)
                                 <flux:button
                                     size="sm"

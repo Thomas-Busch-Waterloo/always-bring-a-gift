@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\Event;
 use App\Models\Gift;
 use Illuminate\Support\Collection;
+use Livewire\Attributes\Session;
 use Livewire\Component;
 
 class Dashboard extends Component
@@ -19,12 +20,23 @@ class Dashboard extends Component
 
     public int $timeframeDays = 30;
 
+    #[Session]
+    public bool $noPeeking = false;
+
     /**
      * Set the timeframe for upcoming events
      */
     public function setTimeframe(int $days): void
     {
         $this->timeframeDays = $days;
+    }
+
+    /**
+     * Toggle no-peeking mode
+     */
+    public function toggleNoPeeking(): void
+    {
+        $this->noPeeking = ! $this->noPeeking;
     }
 
     /**
