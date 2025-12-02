@@ -20,6 +20,8 @@
             <option value="yearly">Yearly</option>
         </flux:select>
 
+        <flux:switch wire:model="show_milestone" label="Track milestone (e.g., 38th Birthday, 5th Anniversary)" />
+
         <flux:input wire:model="date" label="Date" type="date" required />
         <flux:input wire:model="target_value" label="Target Budget" type="number" step="0.01" min="0" />
         <flux:textarea wire:model="notes" label="Gift Ideas / Notes" rows="4" />
