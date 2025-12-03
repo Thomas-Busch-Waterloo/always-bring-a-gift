@@ -6,12 +6,11 @@ use App\Livewire\Settings\Appearance;
 use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
 use App\Livewire\Settings\TwoFactor;
+use App\Livewire\Settings\Users;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 
-Route::get('/', function () {
-    return view('welcome');
-})->name('home');
+Route::redirect('/', 'dashboard')->name('home');
 
 // Authentik OAuth routes
 Route::get('auth/authentik', [App\Http\Controllers\Auth\AuthentikController::class, 'redirect'])
@@ -45,6 +44,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('settings/profile', Profile::class)->name('profile.edit');
     Route::get('settings/password', Password::class)->name('user-password.edit');
     Route::get('settings/appearance', Appearance::class)->name('appearance.edit');
+
+    // Admin routes
+    Route::middleware('can:viewAdmin,App\Models\User')->prefix('admin')->name('admin.')->group(function () {
+        Route::get('users', Users::class)->name('users.index');
+    });
 
     Route::get('settings/two-factor', TwoFactor::class)
         ->middleware(

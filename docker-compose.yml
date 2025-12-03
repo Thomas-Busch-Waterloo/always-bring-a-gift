@@ -1,0 +1,71 @@
+version: '3.8'
+
+# Always Bring a Gift (ABAG) - Docker Compose Configuration
+#
+# Storage Strategy:
+# - abag_storage: All application data (storage directory)
+#   - SQLite database at storage/database.sqlite
+#   - User uploads at storage/app
+#   - Framework cache/sessions/views (ephemeral but harmless)
+#   - Logs directory (empty, logs go to stdout/stderr)
+#
+# Logs: Application logs go to stdout/stderr (view with: docker logs abag)
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ghcr.io/yourusername/always-bring-a-gift:latest
+    container_name: abag
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      # User/Group IDs (for Unraid and similar systems)
+      - PUID=1000
+      - PGID=1000
+      - TZ=UTC
+
+      - APP_NAME=Always Bring a Gift
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - APP_URL=http://localhost:8000
+      - APP_REGISTRATION_ENABLED=false
+      - APP_TIMEZONE=UTC
+
+      # Database (SQLite by default)
+      - DB_CONNECTION=sqlite
+      - DB_DATABASE=/app/storage/database.sqlite
+
+      # Optional: Authentik SSO
+      # - AUTHENTIK_CLIENT_ID=
+      # - AUTHENTIK_CLIENT_SECRET=
+      # - AUTHENTIK_REDIRECT_URI=
+      # - AUTHENTIK_BASE_URL=
+
+      # Session
+      - SESSION_DRIVER=file
+      - SESSION_LIFETIME=120
+
+      # Cache
+      - CACHE_STORE=file
+
+      # Queue
+      - QUEUE_CONNECTION=sync
+
+      # Logging
+      - LOG_CHANNEL=stderr
+      - LOG_LEVEL=info
+    volumes:
+      - abag_storage:/app/storage
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/up"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  abag_storage:
+    driver: local

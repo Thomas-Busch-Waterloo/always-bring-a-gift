@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use SocialiteProviders\Authentik\Provider as AuthentikProvider;
 use SocialiteProviders\Manager\SocialiteWasCalled;
@@ -24,6 +25,11 @@ class AppServiceProvider extends ServiceProvider
         // Listen for Socialite OAuth calls and configure Authentik provider
         $this->app['events']->listen(SocialiteWasCalled::class, function (SocialiteWasCalled $event) {
             $event->extendSocialite('authentik', AuthentikProvider::class);
+        });
+
+        // Define admin gate
+        Gate::define('viewAdmin', function ($user) {
+            return $user->is_admin === true;
         });
     }
 }

@@ -1,0 +1,75 @@
+name: Build & Publish Docker Images
+
+on:
+  push:
+    branches: [ main ]
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/always-bring-a-gift
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_NAME }}
+          tags: |
+            # ---------------------------------------------------------
+            # DEV TAG (main branch head)
+            # ---------------------------------------------------------
+            # Build from main -> tag as :dev
+            type=raw,value=dev,enable=${{ github.ref == 'refs/heads/main' }}
+
+            # ---------------------------------------------------------
+            # RELEASE TAGS (git tag: vX.Y.Z)
+            # ---------------------------------------------------------
+            # Full version tag: v1.0.0 (whatever the git tag is)
+            type=ref,event=tag,enable=${{ startsWith(github.ref, 'refs/tags/v') }}
+
+            # Short aliases: v1.0 and v1
+            # Uses the semver parser on tags like v1.2.3
+            type=semver,pattern=v{{major}}.{{minor}},enable=${{ startsWith(github.ref, 'refs/tags/v') }}
+            type=semver,pattern=v{{major}},enable=${{ startsWith(github.ref, 'refs/tags/v') }}
+
+            # ---------------------------------------------------------
+            # LATEST TAG
+            # ---------------------------------------------------------
+            # Every time you push a vX.Y.Z tag, it also updates :latest
+            type=raw,value=latest,enable=${{ startsWith(github.ref, 'refs/tags/v') }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./docker
+          file: ./docker/Dockerfile
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}

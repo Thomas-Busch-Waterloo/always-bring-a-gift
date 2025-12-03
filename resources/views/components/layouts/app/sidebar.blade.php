@@ -53,6 +53,9 @@
 
                     <flux:menu.radio.group>
                         <flux:menu.item :href="route('profile.edit')" icon="cog" wire:navigate>{{ __('Settings') }}</flux:menu.item>
+                        @can('viewAdmin')
+                            <flux:menu.item :href="route('admin.users.index')" icon="shield-check" wire:navigate>{{ __('Admin') }}</flux:menu.item>
+                        @endcan
                     </flux:menu.radio.group>
 
                     <flux:menu.separator />
@@ -103,6 +106,9 @@
 
                     <flux:menu.radio.group>
                         <flux:menu.item :href="route('profile.edit')" icon="cog" wire:navigate>{{ __('Settings') }}</flux:menu.item>
+                        @can('viewAdmin')
+                            <flux:menu.item :href="route('admin.users.index')" icon="shield-check" wire:navigate>{{ __('Admin') }}</flux:menu.item>
+                        @endcan
                     </flux:menu.radio.group>
 
                     <flux:menu.separator />
