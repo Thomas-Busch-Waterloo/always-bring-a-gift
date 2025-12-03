@@ -1,7 +1,7 @@
 <?php
 
 test('registration screen can be rendered', function () {
-    if (! config('app.registration_enabled')) {
+    if (! config('auth.registration_enabled')) {
         $this->markTestSkipped('Registration is disabled');
     }
 
@@ -11,7 +11,7 @@ test('registration screen can be rendered', function () {
 });
 
 test('new users can register', function () {
-    if (! config('app.registration_enabled')) {
+    if (! config('auth.registration_enabled')) {
         $this->markTestSkipped('Registration is disabled');
     }
 
@@ -29,7 +29,7 @@ test('new users can register', function () {
 });
 
 test('registration routes are not available when disabled', function () {
-    if (config('app.registration_enabled')) {
+    if (config('auth.registration_enabled')) {
         $this->markTestSkipped('Registration is enabled');
     }
 
