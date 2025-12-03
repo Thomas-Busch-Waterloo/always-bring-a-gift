@@ -61,6 +61,16 @@ class Show extends Component
         $this->person->load('giftIdeas');
     }
 
+    /**
+     * Delete an event
+     */
+    public function deleteEvent(int $eventId): void
+    {
+        $event = $this->person->events()->findOrFail($eventId);
+        $event->delete();
+        $this->person->load(['events.eventType', 'events.gifts', 'events.completions']);
+    }
+
     public function render()
     {
         return view('livewire.people.show');

@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 use App\Livewire\People\Show;
+use App\Models\Event;
+use App\Models\EventType;
 use App\Models\GiftIdea;
 use App\Models\Person;
 use App\Models\User;
@@ -134,3 +136,36 @@ test('shows empty state when no gift ideas', function () {
     Livewire::test(Show::class, ['person' => $person])
         ->assertSee('No gift ideas yet');
 });
+
+test('can delete event', function () {
+    $person = Person::factory()->create(['name' => 'Delete Event Test']);
+    $eventType = EventType::factory()->create(['name' => 'Birthday']);
+    $event = Event::factory()->create([
+        'person_id' => $person->id,
+        'event_type_id' => $eventType->id,
+        'is_annual' => true,
+        'date' => '2025-12-25',
+    ]);
+
+    Livewire::test(Show::class, ['person' => $person])
+        ->call('deleteEvent', $event->id)
+        ->assertHasNoErrors();
+
+    expect(Event::find($event->id))->toBeNull();
+});
+
+test('cannot delete event belonging to different person', function () {
+    $person1 = Person::factory()->create(['name' => 'Person 1']);
+    $person2 = Person::factory()->create(['name' => 'Person 2']);
+    $eventType = EventType::factory()->create(['name' => 'Anniversary']);
+
+    $event = Event::factory()->create([
+        'person_id' => $person2->id,
+        'event_type_id' => $eventType->id,
+        'is_annual' => true,
+        'date' => '2025-06-15',
+    ]);
+
+    Livewire::test(Show::class, ['person' => $person1])
+        ->call('deleteEvent', $event->id);
+})->throws(\Illuminate\Database\Eloquent\ModelNotFoundException::class);

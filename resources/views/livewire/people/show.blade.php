@@ -82,6 +82,15 @@
                                         <flux:button size="sm" variant="ghost" href="{{ route('events.show', $event) }}" wire:navigate>
                                             View
                                         </flux:button>
+                                        <flux:button
+                                            size="sm"
+                                            variant="ghost"
+                                            class="hover:text-red-600 dark:hover:text-red-400"
+                                            wire:click="deleteEvent({{ $event->id }})"
+                                            wire:confirm="Are you sure you want to delete this event? This will also delete all associated gifts."
+                                        >
+                                            Delete
+                                        </flux:button>
                                     </div>
                                 </td>
                             </tr>
