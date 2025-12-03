@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Comprehensive README with deployment and development instructions
 - MIT License file
 
+### Changed
+- Renamed "Build & Publish Docker Images" workflow to "Build" for cleaner badge display
+
 ## [0.1.0] - 2025-12-03
 
 ### Added

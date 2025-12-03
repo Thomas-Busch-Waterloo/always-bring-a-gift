@@ -6,7 +6,7 @@
   **Never forget another birthday, anniversary, or special occasion**
 
   [![Tests](https://github.com/Indemnity83/always-bring-a-gift/actions/workflows/tests.yml/badge.svg)](https://github.com/Indemnity83/always-bring-a-gift/actions/workflows/tests.yml)
-  [![Docker Build](https://github.com/Indemnity83/always-bring-a-gift/actions/workflows/build.yml/badge.svg)](https://github.com/Indemnity83/always-bring-a-gift/actions/workflows/build.yml)
+  [![Build](https://github.com/Indemnity83/always-bring-a-gift/actions/workflows/build.yml/badge.svg)](https://github.com/Indemnity83/always-bring-a-gift/actions/workflows/build.yml)
   [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 </div>
