@@ -75,9 +75,7 @@ fi
 
 # Cache configuration and routes for better performance
 echo "✨ Optimizing application..."
-php artisan config:cache --quiet
-php artisan route:cache --quiet
-php artisan view:cache --quiet
+php artisan optimize
 
 # Handle PUID/PGID for Unraid and similar systems
 PUID=${PUID:-1000}
@@ -99,4 +97,4 @@ find storage bootstrap/cache -type f -exec chmod 664 {} \;
 echo "✅ Application ready!"
 
 # Start FrankenPHP server as the configured user with Caddyfile
-exec su-exec "$PUID:$PGID" frankenphp run --config /etc/caddy/Caddyfile
+exec gosu "$PUID:$PGID" frankenphp run --config /etc/caddy/Caddyfile
