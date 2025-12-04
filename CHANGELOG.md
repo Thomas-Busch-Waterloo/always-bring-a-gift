@@ -11,12 +11,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Comprehensive README with deployment and development instructions
 - MIT License file
 - CONTRIBUTING.md with contribution guidelines
-- CODE_OF_CONDUCT.md (Contributor Covenant v2.1)
+- CODE_OF_CONDUCT.md with psychological safety framework (Contributor Covenant v2.1)
 - GitHub issue templates (bug report, feature request)
 - `.claude` directory to .gitignore
+- Configurable trusted proxies support via `TRUSTED_PROXIES` environment variable
 
 ### Changed
 - Renamed "Build & Publish Docker Images" workflow to "Build" for cleaner badge display
+- Docker images now default to trusting all proxies (safe for Traefik/reverse proxy deployments)
+
+### Security
+- Trusted proxies now configurable via environment variable instead of hardcoded (prevents security issues in direct deployments)
 
 ## [0.1.0] - 2025-12-03
 
