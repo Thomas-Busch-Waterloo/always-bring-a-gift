@@ -55,7 +55,8 @@ class SendNotificationJob implements ShouldQueue
         protected string $channel,
         protected mixed $target,
         protected int $eventId,
-        protected Carbon $occurrenceDate
+        protected Carbon $occurrenceDate,
+        protected bool $simulateFailure = false
     ) {
         $this->onQueue('notifications');
     }
@@ -71,7 +72,7 @@ class SendNotificationJob implements ShouldQueue
             // Check rate limits before processing
             if (! $this->checkRateLimit()) {
                 $this->release(300); // Release for 5 minutes
-                if (app()->environment('testing') && Queue::isFake()) {
+                if (Queue::isFake()) {
                     Queue::push($this);
                 }
                 return;
@@ -211,6 +212,12 @@ class SendNotificationJob implements ShouldQueue
      */
     protected function updateRateLimit(bool $success): void
     {
+        $config = NotificationRateLimitConfig::where('channel', $this->channel)
+            ->where('action', 'send_notification')
+            ->where('is_active', true)
+            ->first();
+        $windowMinutes = $config?->window_minutes ?? 60;
+
         $rateLimit = NotificationRateLimit::firstOrCreate([
             'user_id' => $this->user->id,
             'channel' => $this->channel,
@@ -218,20 +225,19 @@ class SendNotificationJob implements ShouldQueue
         ], [
             'attempts' => 0,
             'last_attempt_at' => now(),
-            'reset_at' => now()->addMinutes(60), // Default 1 hour window
+            'reset_at' => now()->addMinutes($windowMinutes),
         ]);
 
+        if (! $rateLimit->reset_at) {
+            $rateLimit->reset_at = now()->addMinutes($windowMinutes);
+        }
+
         if (! $success) {
-            $rateLimit->attempts++;
             $rateLimit->last_attempt_at = now();
+            $rateLimit->attempts++;
 
-            // Check if we need to block based on configuration
-            $config = NotificationRateLimitConfig::where('channel', $this->channel)
-                ->where('action', 'send_notification')
-                ->where('is_active', true)
-                ->first();
-
-            if ($config && $rateLimit->attempts >= $config->max_attempts) {
+            $isFinalAttempt = $this->attempts() >= $this->tries;
+            if ($config && $isFinalAttempt && $rateLimit->attempts >= $config->max_attempts) {
                 $rateLimit->is_blocked = true;
                 $rateLimit->reset_at = now()->addMinutes($config->block_duration_minutes);
             }
@@ -241,18 +247,11 @@ class SendNotificationJob implements ShouldQueue
     }
 
     /**
-     * Simulate failures in tests when a rate limit config exists.
+     * Simulate failures in tests when explicitly enabled.
      */
     protected function shouldSimulateFailure(): bool
     {
-        if (! app()->environment('testing')) {
-            return false;
-        }
-
-        return NotificationRateLimitConfig::where('channel', $this->channel)
-            ->where('action', 'send_notification')
-            ->where('is_active', true)
-            ->exists();
+        return $this->simulateFailure;
     }
 
     /**

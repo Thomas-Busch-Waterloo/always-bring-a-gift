@@ -115,7 +115,7 @@ class NotificationStatus extends Component
             $query->where('channel', $this->selectedChannel);
         }
 
-        return $query->latest()->get();
+        return $query->orderByDesc('date')->get();
     }
 
     public function getRecentNotificationsProperty()

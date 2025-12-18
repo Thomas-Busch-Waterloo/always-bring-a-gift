@@ -189,7 +189,8 @@ test('send notification job updates rate limit on failure', function () {
     ]);
 
     $notification = new UpcomingEventReminderNotification($event, $event->next_occurrence, $user, 'mail', 7);
-    $job = new SendNotificationJob($user, $notification, 'mail', $user, $event->id, $event->next_occurrence);
+    $job = new SendNotificationJob($user, $notification, 'mail', $user, $event->id, $event->next_occurrence, true);
+    $job->tries = 1;
 
     // Create rate limit config
     NotificationRateLimitConfig::factory()->create([
@@ -200,9 +201,7 @@ test('send notification job updates rate limit on failure', function () {
         'is_active' => true,
     ]);
 
-    // Simulate failure by throwing an exception
-    $this->expectException(\Exception::class);
-    $job->handle();
+    expect(fn () => $job->handle())->toThrow(\Exception::class);
 
     // Rate limit should be updated with increased attempts
     $rateLimit = NotificationRateLimit::where('user_id', $user->id)
