@@ -14,7 +14,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Queue;
 use Throwable;
 
 class SendNotificationJob implements ShouldQueue
@@ -71,10 +70,6 @@ class SendNotificationJob implements ShouldQueue
             // Check rate limits before processing
             if (! $this->checkRateLimit()) {
                 $this->release(300); // Release for 5 minutes
-                if (app()->environment('testing')) {
-                    Queue::push($this);
-                }
-
                 return;
             }
 
@@ -124,7 +119,7 @@ class SendNotificationJob implements ShouldQueue
         ]);
 
         // If blocked, check if block period has expired
-        if ($rateLimit->is_blocked && $rateLimit->reset_at->isFuture()) {
+        if ($rateLimit->is_blocked && $rateLimit->reset_at && $rateLimit->reset_at->isFuture()) {
             $this->safeLog('info', 'Notification blocked by rate limit', [
                 'user_id' => $this->user->id,
                 'channel' => $this->channel,
@@ -135,7 +130,7 @@ class SendNotificationJob implements ShouldQueue
         }
 
         // Reset block if period has expired
-        if ($rateLimit->is_blocked && $rateLimit->reset_at->isPast()) {
+        if ($rateLimit->is_blocked && $rateLimit->reset_at && $rateLimit->reset_at->isPast()) {
             $rateLimit->is_blocked = false;
             $rateLimit->attempts = 0;
             $rateLimit->save();

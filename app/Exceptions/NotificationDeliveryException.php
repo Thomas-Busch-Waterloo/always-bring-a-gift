@@ -25,9 +25,6 @@ class NotificationDeliveryException extends Exception
         if ($channel !== 'unknown') {
             $contextParts[] = "channel: {$channel}";
         }
-        if ($recipient !== null) {
-            $contextParts[] = "recipient: {$recipient}";
-        }
         if ($notificationType !== null) {
             $contextParts[] = "type: {$notificationType}";
         }

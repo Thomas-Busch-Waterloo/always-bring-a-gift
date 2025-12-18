@@ -79,6 +79,7 @@
                     <flux:input
                         wire:model.live.debounce.300ms="pushToken"
                         :label="__('Auth token (optional)')"
+                        type="password"
                         placeholder="Bearer/secret token"
                     />
                     <flux:button size="sm" variant="ghost" type="button" wire:click.prevent="sendTest('push')">

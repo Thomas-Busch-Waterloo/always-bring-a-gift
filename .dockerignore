@@ -9,6 +9,8 @@ public/hot
 .env
 .env.*
 !.env.example
+tests
+phpunit.xml
 storage/*.key
 storage/logs
 storage/framework/cache

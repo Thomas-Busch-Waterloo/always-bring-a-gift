@@ -218,13 +218,13 @@
                                     </svg>
                                     <div>
                                         <p class="text-sm font-medium text-red-800">{{ $outage->channel }}</p>
-                                        <p class="text-xs text-red-600">{{ $outage->error_message }}</p>
+                                        <p class="text-xs text-red-600">{{ $outage->description }}</p>
                                     </div>
                                 </div>
                                 <div class="text-right">
                                     <p class="text-xs text-red-600">Started: {{ $outage->started_at->diffForHumans() }}</p>
-                                    @if($outage->resolved_at)
-                                        <p class="text-xs text-green-600">Resolved: {{ $outage->resolved_at->diffForHumans() }}</p>
+                                    @if($outage->ended_at)
+                                        <p class="text-xs text-green-600">Resolved: {{ $outage->ended_at->diffForHumans() }}</p>
                                     @endif
                                 </div>
                             </div>
@@ -271,7 +271,7 @@
                             @foreach($recentNotifications as $notification)
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        {{ $notification->sent_at->format('M j, Y g:i A') }}
+                                        {{ $notification->sent_at?->format('M j, Y g:i A') ?? 'Pending' }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                         {{ $notification->user->name }}
@@ -282,12 +282,18 @@
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        {{ $notification->event?->name ?? 'N/A' }}
+                                        {{ $notification->event?->display_name ?? 'N/A' }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                            Delivered
-                                        </span>
+                                        @if($notification->sent_at)
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                Delivered
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                Failed
+                                            </span>
+                                        @endif
                                     </td>
                                 </tr>
                             @endforeach
@@ -298,10 +304,10 @@
                 <!-- Pagination -->
                 <div class="mt-4 flex items-center justify-between">
                     <div class="flex-1 flex justify-between sm:hidden">
-                        <button wire:click="previousPage" wire:disabled="{{ $recentNotifications->onFirstPage() }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        <button wire:click="previousPage" @disabled($recentNotifications->onFirstPage()) class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
                             Previous
                         </button>
-                        <button wire:click="nextPage" wire:disabled="{{ $recentNotifications->hasMorePages() }}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        <button wire:click="nextPage" @disabled(! $recentNotifications->hasMorePages()) class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
                             Next
                         </button>
                     </div>

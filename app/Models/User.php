@@ -81,6 +81,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the user's people.
+     */
+    public function people(): HasMany
+    {
+        return $this->hasMany(Person::class);
+    }
+
+    /**
      * Get the user's initials
      */
     public function initials(): string

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Person extends Model
 {
@@ -17,6 +18,7 @@ class Person extends Model
      * @var list<string>
      */
     protected $fillable = [
+        'user_id',
         'name',
         'profile_picture',
         'birthday',
@@ -43,6 +45,14 @@ class Person extends Model
     public function events(): HasMany
     {
         return $this->hasMany(Event::class);
+    }
+
+    /**
+     * Get the user that owns the person.
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     /**

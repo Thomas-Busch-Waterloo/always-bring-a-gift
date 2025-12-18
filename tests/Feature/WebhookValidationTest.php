@@ -253,7 +253,7 @@ test('webhook validation service validates with default rules for unknown type',
     // This should not throw an exception for unknown type
     $result = $service->validateWebhookUrl($validUrl, 'unknown');
 
-    expect($result)->toBeFalse(); // Will be false due to connectivity test
+    expect($result)->toBeTrue();
 });
 
 test('webhook validation service handles empty config for trusted domains', function () {

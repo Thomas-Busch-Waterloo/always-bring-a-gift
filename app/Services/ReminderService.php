@@ -117,6 +117,9 @@ class ReminderService
 
         // Use database cursor for memory efficiency
         Event::with(['person', 'eventType', 'completions'])
+            ->whereHas('person', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
             ->chunk(50, function (EloquentCollection $events) use (
                 $user,
                 $channels,
@@ -246,6 +249,7 @@ class ReminderService
             ->where('event_id', $eventId)
             ->where('channel', $channel)
             ->whereDate('remind_for_date', $occurrence)
+            ->whereNotNull('sent_at')
             ->exists();
     }
 

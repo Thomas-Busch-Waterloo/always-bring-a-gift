@@ -51,7 +51,8 @@ class NotificationAnalyticsService
         $logs = EventNotificationLog::whereBetween('sent_at', [$startDate, $endDate])
             ->get();
 
-        $users = User::with('notificationSetting')->get();
+        $totalUsers = User::count();
+        $activeUsers = NotificationSetting::distinct('user_id')->count('user_id');
 
         $analytics = [
             'period' => [
@@ -59,15 +60,15 @@ class NotificationAnalyticsService
                 'end' => $endDate->toISOString(),
             ],
             'total_notifications' => $logs->count(),
-            'total_users' => $users->count(),
-            'active_users' => $users->filter(fn ($user) => $user->notificationSetting)->count(),
+            'total_users' => $totalUsers,
+            'active_users' => $activeUsers,
             'by_channel' => $this->getChannelBreakdown($logs),
             'by_day' => $this->getDailyBreakdown($logs),
             'success_rate' => $this->calculateSuccessRate($logs),
-            'average_per_user' => (float) $logs->count() / max(1, $users->count()),
+            'average_per_user' => (float) $logs->count() / max(1, $totalUsers),
             'average_per_day' => $this->calculateAveragePerDay($logs, $startDate, $endDate),
             'top_users' => $this->getTopUsers($logs),
-            'channel_distribution' => $this->getSystemChannelDistribution($users),
+            'channel_distribution' => $this->getSystemChannelDistribution(),
             'growth_trend' => $this->getGrowthTrend($startDate, $endDate),
         ];
 
@@ -187,7 +188,7 @@ class NotificationAnalyticsService
     /**
      * Get system-wide channel distribution.
      */
-    protected function getSystemChannelDistribution(Collection $users): array
+    protected function getSystemChannelDistribution(): array
     {
         $distribution = [
             'mail' => 0,
@@ -196,19 +197,17 @@ class NotificationAnalyticsService
             'push' => 0,
         ];
 
-        foreach ($users as $user) {
-            if (! $user->notificationSetting) {
-                continue;
-            }
+        NotificationSetting::chunk(200, function (Collection $settings) use (&$distribution): void {
+            foreach ($settings as $setting) {
+                $channels = $setting->resolved_channels ?? [];
 
-            $channels = $user->notificationSetting->resolved_channels ?? [];
-
-            foreach ($channels as $channel) {
-                if (isset($distribution[$channel])) {
-                    $distribution[$channel]++;
+                foreach ($channels as $channel) {
+                    if (isset($distribution[$channel])) {
+                        $distribution[$channel]++;
+                    }
                 }
             }
-        }
+        });
 
         return $distribution;
     }
@@ -218,14 +217,21 @@ class NotificationAnalyticsService
      */
     protected function getGrowthTrend(Carbon $startDate, Carbon $endDate): array
     {
+        $rangeStart = $startDate->copy()->startOfDay();
+        $rangeEnd = $endDate->copy()->endOfDay();
+
+        $counts = EventNotificationLog::whereBetween('sent_at', [$rangeStart, $rangeEnd])
+            ->selectRaw('date(sent_at) as date, count(*) as count')
+            ->groupBy('date')
+            ->pluck('count', 'date');
+
         $trend = [];
-        $currentDate = $startDate->copy();
+        $currentDate = $rangeStart->copy();
+        $lastDate = $rangeEnd->copy()->startOfDay();
 
-        while ($currentDate->lte($endDate)) {
-            $count = EventNotificationLog::whereDate('sent_at', $currentDate)
-                ->count();
-
-            $trend[$currentDate->format('Y-m-d')] = $count;
+        while ($currentDate->lte($lastDate)) {
+            $key = $currentDate->format('Y-m-d');
+            $trend[$key] = (int) ($counts[$key] ?? 0);
             $currentDate->addDay();
         }
 

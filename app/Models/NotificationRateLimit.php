@@ -52,10 +52,23 @@ class NotificationRateLimit extends Model
     /**
      * Get the configuration for this rate limit.
      */
-    public function config()
+    public function config(): BelongsTo
     {
-        return $this->belongsTo(NotificationRateLimitConfig::class, 'channel', 'channel')
-            ->where('action', $this->action);
+        return $this->belongsTo(NotificationRateLimitConfig::class, 'channel', 'channel');
+    }
+
+    /**
+     * Resolve the configuration for the current action.
+     */
+    public function configForAction(): ?NotificationRateLimitConfig
+    {
+        if ($this->action === null) {
+            return null;
+        }
+
+        return NotificationRateLimitConfig::where('channel', $this->channel)
+            ->where('action', $this->action)
+            ->first();
     }
 
     /**
@@ -63,6 +76,10 @@ class NotificationRateLimit extends Model
      */
     public function isExpired(): bool
     {
+        if (! $this->reset_at) {
+            return false;
+        }
+
         return now()->isAfter($this->reset_at);
     }
 

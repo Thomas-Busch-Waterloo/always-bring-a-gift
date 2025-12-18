@@ -191,12 +191,12 @@ class BatchSendNotificationsJob implements ShouldQueue
         ]);
 
         // If blocked, check if block period has expired
-        if ($rateLimit->is_blocked && $rateLimit->reset_at->isFuture()) {
+        if ($rateLimit->is_blocked && $rateLimit->reset_at && $rateLimit->reset_at->isFuture()) {
             return false;
         }
 
         // Reset block if period has expired
-        if ($rateLimit->is_blocked && $rateLimit->reset_at->isPast()) {
+        if ($rateLimit->is_blocked && $rateLimit->reset_at && $rateLimit->reset_at->isPast()) {
             $rateLimit->is_blocked = false;
             $rateLimit->attempts = 0;
             $rateLimit->save();

@@ -7,6 +7,36 @@ echo "🚀 Starting Always Bring a Gift (ABAG) container..."
 PUID=${PUID:-1000}
 PGID=${PGID:-1000}
 
+# Ensure user/group exist for gosu
+if ! getent group "$PGID" >/dev/null 2>&1; then
+    groupadd -g "$PGID" abag
+fi
+
+if ! id -u "$PUID" >/dev/null 2>&1; then
+    useradd -u "$PUID" -g "$PGID" -m -s /bin/sh abag
+fi
+
+RUN_USER=$(getent passwd "$PUID" | cut -d: -f1)
+RUN_USER=${RUN_USER:-abag}
+
+# Graceful shutdown for background workers
+shutdown() {
+    echo "🛑 Shutting down background processes..."
+    if [ -n "${scheduler_pid:-}" ]; then
+        kill "$scheduler_pid" 2>/dev/null || true
+    fi
+    if [ -n "${worker_pid:-}" ]; then
+        kill "$worker_pid" 2>/dev/null || true
+    fi
+    if [ -n "${server_pid:-}" ]; then
+        kill "$server_pid" 2>/dev/null || true
+    fi
+    wait || true
+    exit 0
+}
+
+trap shutdown INT TERM
+
 # Ensure storage directory structure exists with correct ownership
 echo "📁 Ensuring storage directory structure..."
 mkdir -p storage/app/public
@@ -117,20 +147,24 @@ echo "✅ Application ready!"
 (
   echo "⏱️  Starting scheduler loop..."
   while true; do
-    gosu "$PUID:$PGID" php artisan schedule:run --no-ansi --quiet || true
+    gosu "$RUN_USER:$PGID" php artisan schedule:run --no-ansi --quiet || true
     sleep 60
   done
 ) &
+scheduler_pid=$!
 
 # Start queue worker in background for processing notifications (with restart loop)
 (
   echo "📬 Starting queue worker..."
   while true; do
-    gosu "$PUID:$PGID" php artisan queue:work --queue=notifications --sleep=3 --tries=3 --max-time=3600 || true
+    gosu "$RUN_USER:$PGID" php artisan queue:work --queue=notifications --sleep=3 --tries=3 --max-time=3600 || true
     echo "📬 Queue worker restarting..."
     sleep 5
   done
 ) &
+worker_pid=$!
 
 # Start FrankenPHP server as the configured user with Caddyfile
-exec gosu "$PUID:$PGID" frankenphp run --config /etc/caddy/Caddyfile
+gosu "$RUN_USER:$PGID" frankenphp run --config /etc/caddy/Caddyfile &
+server_pid=$!
+wait "$server_pid"

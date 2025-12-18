@@ -41,7 +41,10 @@ test('sends mail reminders for upcoming events and logs them', function () {
         'lead_time_days' => 10,
     ]);
 
-    $person = Person::factory()->create(['name' => 'Alex']);
+    $person = Person::factory()->create([
+        'user_id' => $user->id,
+        'name' => 'Alex',
+    ]);
     $eventType = EventType::factory()->create(['name' => 'Birthday']);
 
     $event = Event::factory()->create([
@@ -70,7 +73,10 @@ test('skips reminders that were already sent for the same day and channel', func
         'channels' => ['mail'],
     ]);
 
-    $person = Person::factory()->create(['name' => 'Jordan']);
+    $person = Person::factory()->create([
+        'user_id' => $user->id,
+        'name' => 'Jordan',
+    ]);
     $eventType = EventType::factory()->create(['name' => 'Anniversary']);
 
     $event = Event::factory()->create([
@@ -106,7 +112,10 @@ test('sends to configured webhooks when channels are enabled', function () {
         'lead_time_days' => 5,
     ]);
 
-    $person = Person::factory()->create(['name' => 'Sam']);
+    $person = Person::factory()->create([
+        'user_id' => $user->id,
+        'name' => 'Sam',
+    ]);
     $eventType = EventType::factory()->create(['name' => 'Celebration']);
 
     $event = Event::factory()->create([
@@ -159,7 +168,10 @@ test('respects user timezone when determining if reminder should send', function
         'remind_at' => '09:00:00',
     ]);
 
-    $person = Person::factory()->create(['name' => 'Test Person']);
+    $person = Person::factory()->create([
+        'user_id' => $user->id,
+        'name' => 'Test Person',
+    ]);
     $eventType = EventType::factory()->create(['name' => 'Birthday']);
 
     Event::factory()->create([
@@ -193,7 +205,10 @@ test('sends reminder when user local time has passed remind_at time', function (
         'remind_at' => '09:00:00',
     ]);
 
-    $person = Person::factory()->create(['name' => 'Test Person']);
+    $person = Person::factory()->create([
+        'user_id' => $user->id,
+        'name' => 'Test Person',
+    ]);
     $eventType = EventType::factory()->create(['name' => 'Birthday']);
 
     $event = Event::factory()->create([

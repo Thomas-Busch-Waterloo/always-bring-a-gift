@@ -21,10 +21,6 @@ class WebhookValidationService
             throw ValidationException::withMessages($validator->errors()->toArray());
         }
 
-        if (! in_array($type, ['discord', 'slack'], true)) {
-            return false;
-        }
-
         return true;
     }
 

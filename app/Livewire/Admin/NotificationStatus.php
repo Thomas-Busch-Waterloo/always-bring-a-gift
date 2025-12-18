@@ -109,7 +109,7 @@ class NotificationStatus extends Component
     {
         [$startDate, $endDate] = $this->getDateRange();
 
-        $query = NotificationMetric::whereBetween('created_at', [$startDate, $endDate]);
+        $query = NotificationMetric::whereBetween('date', [$startDate, $endDate]);
 
         if ($this->selectedChannel !== 'all') {
             $query->where('channel', $this->selectedChannel);
@@ -160,25 +160,28 @@ class NotificationStatus extends Component
 
     public function getRateLimitStatsProperty(): array
     {
-        $activeLimits = NotificationRateLimit::where('expires_at', '>', now())
+        $activeLimits = NotificationRateLimit::where('is_blocked', true)
+            ->whereNotNull('reset_at')
+            ->where('reset_at', '>', now())
             ->get();
+
+        $attemptsByChannel = $activeLimits->groupBy('channel')
+            ->map(fn ($group) => $group->sum('attempts'))
+            ->sortDesc();
 
         return [
             'active_limits' => $activeLimits->count(),
-            'total_hits' => $activeLimits->sum('hit_count'),
+            'total_hits' => $activeLimits->sum('attempts'),
             'channels_affected' => $activeLimits->pluck('channel')->unique()->count(),
-            'most_hit_channel' => $activeLimits->groupBy('channel')
-                ->map(fn ($group) => $group->sum('hit_count'))
-                ->sortDesc()
-                ->first(),
+            'most_hit_channel' => $attemptsByChannel->keys()->first(),
         ];
     }
 
     public function getSystemOutagesProperty(): Collection
     {
-        return NotificationOutage::where('resolved_at', null)
-            ->orWhere('resolved_at', '>', now()->subDay())
-            ->latest()
+        return NotificationOutage::where('is_resolved', false)
+            ->orWhere('ended_at', '>', now()->subDay())
+            ->latest('started_at')
             ->get();
     }
 
