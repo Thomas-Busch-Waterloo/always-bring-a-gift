@@ -14,6 +14,8 @@ class Profile extends Component
 
     public string $email = '';
 
+    public string $timezone = 'UTC';
+
     /**
      * Mount the component.
      */
@@ -21,6 +23,7 @@ class Profile extends Component
     {
         $this->name = Auth::user()->name;
         $this->email = Auth::user()->email;
+        $this->timezone = Auth::user()->getUserTimezone();
     }
 
     /**
@@ -41,6 +44,8 @@ class Profile extends Component
                 'max:255',
                 Rule::unique(User::class)->ignore($user->id),
             ],
+
+            'timezone' => ['required', 'string', 'timezone:all'],
         ]);
 
         $user->fill($validated);
@@ -52,6 +57,32 @@ class Profile extends Component
         $user->save();
 
         $this->dispatch('profile-updated', name: $user->name);
+    }
+
+    /**
+     * Get the list of available timezones as a flat array.
+     *
+     * @return array<string, string>
+     */
+    public function getTimezonesProperty(): array
+    {
+        $timezones = \DateTimeZone::listIdentifiers(\DateTimeZone::ALL);
+        $list = [];
+
+        foreach ($timezones as $timezone) {
+            $parts = explode('/', $timezone, 2);
+            $region = $parts[0];
+            $city = $parts[1] ?? $timezone;
+
+            // Format the display name with region prefix
+            $displayName = $region.' / '.str_replace(['_', '/'], [' ', ' / '], $city);
+            $list[$timezone] = $displayName;
+        }
+
+        // Sort by display name
+        asort($list);
+
+        return $list;
     }
 
     /**

@@ -3,17 +3,27 @@ FROM composer:2 AS php-builder
 
 WORKDIR /app
 
+ARG INCLUDE_DEV=false
+
 # Copy composer files
 COPY composer.json composer.lock ./
 
-# Install dependencies (with cache mount for faster rebuilds)
-RUN --mount=type=cache,target=/tmp/cache \
-    COMPOSER_CACHE_DIR=/tmp/cache composer install \
-    --no-dev \
-    --optimize-autoloader \
-    --no-interaction \
-    --prefer-dist \
-    --no-scripts
+# Install dependencies (optionally include dev tools for testing images)
+RUN if [ "$INCLUDE_DEV" = "true" ]; then \
+        composer install \
+        --optimize-autoloader \
+        --no-interaction \
+        --prefer-dist \
+        --no-scripts \
+        --ignore-platform-req=php; \
+    else \
+        composer install \
+        --no-dev \
+        --optimize-autoloader \
+        --no-interaction \
+        --prefer-dist \
+        --no-scripts; \
+    fi
 
 # Stage 2: Build frontend assets
 FROM node:20-alpine AS frontend-builder
@@ -23,9 +33,8 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies (with cache mount for faster rebuilds)
-RUN --mount=type=cache,target=/root/.npm \
-    npm ci
+# Install dependencies
+RUN npm ci
 
 # Copy vendor folder from PHP builder (needed for CSS references)
 COPY --from=php-builder /app/vendor ./vendor

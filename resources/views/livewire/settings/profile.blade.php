@@ -27,6 +27,13 @@
                 @endif
             </div>
 
+            <flux:select wire:model="timezone" :label="__('Timezone')" searchable placeholder="Select timezone..." required>
+                @foreach ($this->timezones as $tz => $displayName)
+                    <option value="{{ $tz }}">{{ $displayName }}</option>
+                @endforeach
+            </flux:select>
+            <flux:description class="-mt-4">{{ __('Used to determine when to send notifications based on your local time.') }}</flux:description>
+
             <div class="flex items-center gap-4">
                 <div class="flex items-center justify-end">
                     <flux:button variant="primary" type="submit" class="w-full">{{ __('Save') }}</flux:button>
