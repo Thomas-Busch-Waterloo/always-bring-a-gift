@@ -32,6 +32,10 @@ class NotificationStatus extends Component
 
     public string $sortDirection = 'desc';
 
+    public array $lastHealthCheck = [];
+
+    public array $lastAnalytics = [];
+
     protected $listeners = ['refreshNotificationStatus' => '$refresh'];
 
     public function mount(): void
@@ -74,13 +78,13 @@ class NotificationStatus extends Component
 
     public function runHealthCheck(ChannelHealthService $healthService): void
     {
-        $healthService->getSystemHealthOverview();
+        $this->lastHealthCheck = $healthService->getSystemHealthOverview();
         session()->flash('status', 'Health checks completed successfully.');
     }
 
     public function updateAnalytics(NotificationAnalyticsService $analyticsService): void
     {
-        $analyticsService->getSystemAnalytics();
+        $this->lastAnalytics = $analyticsService->getSystemAnalytics();
         session()->flash('status', 'Analytics updated successfully.');
     }
 
@@ -143,7 +147,7 @@ class NotificationStatus extends Component
             $query->where('channel', $this->selectedChannel);
         }
 
-        $analytics = $query->latest()->get();
+        $analytics = $query->orderByDesc('date')->get();
 
         return [
             'total_sent' => $analytics->sum('sent_count'),
