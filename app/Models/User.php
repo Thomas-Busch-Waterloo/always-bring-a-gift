@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -28,6 +29,7 @@ class User extends Authenticatable
         'email_verified_at',
         'is_admin',
         'timezone',
+        'christmas_default_date',
     ];
 
     /**
@@ -145,5 +147,35 @@ class User extends Authenticatable
     public function getUserTimezone(): string
     {
         return $this->timezone ?? 'UTC';
+    }
+
+    /**
+     * Get the default month/day for Christmas.
+     */
+    public function getChristmasDefaultDate(): string
+    {
+        $fallback = config('reminders.christmas_default_date', '12-25');
+        $value = $this->christmas_default_date;
+
+        if (! $value || ! preg_match('/^\d{2}-\d{2}$/', $value)) {
+            return $fallback;
+        }
+
+        return $value;
+    }
+
+    /**
+     * Get the Christmas date for a specific year.
+     */
+    public function getChristmasDateForYear(int $year): Carbon
+    {
+        $monthDay = $this->getChristmasDefaultDate();
+        [$month, $day] = array_map('intval', explode('-', $monthDay));
+
+        try {
+            return Carbon::createFromDate($year, $month, $day)->startOfDay();
+        } catch (\Throwable) {
+            return Carbon::createFromDate($year, 12, 25)->startOfDay();
+        }
     }
 }

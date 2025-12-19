@@ -75,6 +75,7 @@ class SendNotificationJob implements ShouldQueue
                 if (Queue::isFake()) {
                     Queue::push($this);
                 }
+
                 return;
             }
 

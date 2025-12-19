@@ -3,6 +3,7 @@
 return [
     'lead_time_days' => env('REMINDER_LEAD_TIME_DAYS', 7),
     'send_time' => env('REMINDER_SEND_TIME', '09:00'),
+    'christmas_default_date' => env('CHRISTMAS_DEFAULT_DATE', '12-25'),
     'default_channels' => ['mail'],
     'channels' => [
         'mail' => [

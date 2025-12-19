@@ -30,6 +30,26 @@ class Create extends Component
         $this->date = now()->format('Y-m-d');
     }
 
+    public function updatedEventTypeId(?int $eventTypeId): void
+    {
+        $this->applyEventTypeDefaults($eventTypeId);
+    }
+
+    public function applyEventTypeDefaults(?int $eventTypeId = null): void
+    {
+        $eventTypeId ??= $this->event_type_id;
+
+        if (! $eventTypeId) {
+            return;
+        }
+
+        $eventType = EventType::find($eventTypeId);
+
+        if ($eventType && $eventType->name === 'Christmas') {
+            $this->date = $this->resolveChristmasDate();
+        }
+    }
+
     /**
      * Save the event
      */
@@ -60,5 +80,15 @@ class Create extends Component
         return view('livewire.events.create', [
             'eventTypes' => $eventTypes,
         ]);
+    }
+
+    protected function resolveChristmasDate(): string
+    {
+        $year = now()->year;
+        $monthDay = $this->person->christmas_default_date
+            ?? $this->person->user?->getChristmasDefaultDate()
+            ?? config('reminders.christmas_default_date', '12-25');
+
+        return sprintf('%04d-%s', $year, $monthDay);
     }
 }

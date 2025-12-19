@@ -57,7 +57,23 @@
 
             <div class="space-y-2">
                 <flux:checkbox wire:model.live="create_christmas_event" label="Create annual Christmas event" />
-                <div x-show="$wire.create_christmas_event" x-transition class="pl-6">
+                <div class="pl-6 space-y-3">
+                    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                        <flux:select wire:model="christmas_month" label="Christmas Month">
+                            @foreach (range(1, 12) as $month)
+                                <option value="{{ $month }}">{{ $month }}</option>
+                            @endforeach
+                        </flux:select>
+                        <flux:select wire:model="christmas_day" label="Christmas Day">
+                            @foreach (range(1, 31) as $day)
+                                <option value="{{ $day }}">{{ $day }}</option>
+                            @endforeach
+                        </flux:select>
+                    </div>
+                    @error('christmas_day')
+                        <flux:error>{{ $message }}</flux:error>
+                    @enderror
+                    <div x-show="$wire.create_christmas_event" x-transition>
                     <flux:input
                         wire:model="christmas_target_value"
                         label="Christmas Budget"
@@ -66,6 +82,7 @@
                         min="0"
                         placeholder="100.00"
                     />
+                    </div>
                 </div>
             </div>
         </div>

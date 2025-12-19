@@ -5,6 +5,8 @@ namespace App\Livewire\People;
 use App\Models\Event;
 use App\Models\EventType;
 use App\Models\Person;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -330,6 +332,7 @@ class Import extends Component
                     [
                         'birthday' => $personData['birthday'] ?: null,
                         'anniversary' => $personData['anniversary'] ?: null,
+                        'christmas_default_date' => $this->defaultChristmasMonthDay(),
                         'notes' => $personData['notes'] ?: null,
                         'profile_picture' => $personData['photo_data'] ?: null,
                     ]
@@ -357,7 +360,7 @@ class Import extends Component
                     Event::create([
                         'person_id' => $person->id,
                         'event_type_id' => $christmasType->id,
-                        'date' => now()->year.'-12-25',
+                        'date' => $this->resolveChristmasDateForPerson($person),
                         'is_annual' => true,
                         'show_milestone' => false,
                         'budget' => $personData['christmas_budget'] ?: null,
@@ -418,5 +421,30 @@ class Import extends Component
     public function render()
     {
         return view('livewire.people.import');
+    }
+
+    /**
+     * Resolve the default Christmas date for the current user.
+     */
+    protected function defaultChristmasMonthDay(): string
+    {
+        $user = Auth::user();
+
+        if ($user instanceof User) {
+            return $user->getChristmasDefaultDate();
+        }
+
+        return config('reminders.christmas_default_date', '12-25');
+    }
+
+    /**
+     * Resolve the Christmas date for the given person.
+     */
+    protected function resolveChristmasDateForPerson(?Person $person): string
+    {
+        $year = now()->year;
+        $monthDay = $person?->christmas_default_date ?: $this->defaultChristmasMonthDay();
+
+        return sprintf('%04d-%s', $year, $monthDay);
     }
 }
