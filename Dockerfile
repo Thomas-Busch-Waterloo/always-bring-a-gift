@@ -9,7 +9,8 @@ ARG INCLUDE_DEV=false
 COPY composer.json composer.lock ./
 
 # Install dependencies (optionally include dev tools for testing images)
-RUN if [ "$INCLUDE_DEV" = "true" ]; then \
+RUN --mount=type=cache,target=/tmp/cache \
+    if [ "$INCLUDE_DEV" = "true" ]; then \
         composer install \
         --optimize-autoloader \
         --no-interaction \
