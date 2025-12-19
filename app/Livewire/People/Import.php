@@ -330,6 +330,7 @@ class Import extends Component
                 $person = Person::firstOrCreate(
                     ['name' => $personData['name']],
                     [
+                        'user_id' => Auth::id(),
                         'birthday' => $personData['birthday'] ?: null,
                         'anniversary' => $personData['anniversary'] ?: null,
                         'christmas_default_date' => $this->defaultChristmasMonthDay(),

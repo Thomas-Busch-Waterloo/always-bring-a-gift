@@ -88,6 +88,7 @@ class Create extends Component
         }
 
         $person = Person::create([
+            'user_id' => Auth::id(),
             'name' => $validated['name'],
             'profile_picture' => $profilePicturePath,
             'birthday' => $validated['birthday'],

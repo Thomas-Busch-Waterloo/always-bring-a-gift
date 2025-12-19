@@ -19,7 +19,9 @@ test('can create person with name only', function () {
         ->call('save')
         ->assertHasNoErrors();
 
-    expect(Person::where('name', 'John Doe')->exists())->toBeTrue();
+    $person = Person::where('name', 'John Doe')->first();
+    expect($person)->not->toBeNull();
+    expect($person->user_id)->toBe($this->user->id);
 });
 
 test('can create person with birthday', function () {
